@@ -1,300 +1,144 @@
 * {
+  box-sizing: border-box;
   margin: 0;
   padding: 0;
-  box-sizing: border-box;
 }
 
 body {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  background-color: #F8FAFC;
-  color: #1e293b;
-  min-height: 100vh;
+  font-family: system-ui, sans-serif;
+  background: #f5f5f5;
+  color: #111;
 }
 
-/* ── Auth pages (login / register) ── */
+/* Auth pages */
 .auth-page {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #e0f2fe 0%, #F8FAFC 60%);
-  padding: 24px;
 }
 
 .auth-card {
-  background: #ffffff;
-  border-radius: 16px;
-  box-shadow: 0 4px 24px rgba(2, 132, 199, 0.10);
-  padding: 40px 36px;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 32px;
   width: 100%;
-  max-width: 420px;
+  max-width: 400px;
 }
 
-.auth-logo {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 28px;
+.auth-card h2 {
+  margin-bottom: 4px;
 }
 
-.auth-logo-icon {
-  width: 40px;
-  height: 40px;
-  background: #0284C7;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-  font-size: 18px;
-}
-
-.auth-logo-text {
-  font-size: 20px;
-  font-weight: 700;
-  color: #0284C7;
-}
-
-.auth-title {
-  font-size: 24px;
-  font-weight: 700;
-  color: #0f172a;
-  margin-bottom: 6px;
-}
-
-.auth-subtitle {
-  font-size: 14px;
-  color: #64748B;
-  margin-bottom: 28px;
-}
-
-.form-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
+.auth-card h3 {
+  margin-bottom: 20px;
+  font-weight: normal;
+  color: #555;
 }
 
 .form-group {
+  margin-bottom: 14px;
   display: flex;
   flex-direction: column;
-  margin-bottom: 16px;
-}
-
-.form-group label {
-  font-size: 13px;
-  font-weight: 600;
-  color: #374151;
-  margin-bottom: 6px;
+  gap: 4px;
 }
 
 .form-group input {
-  padding: 10px 14px;
-  border: 1.5px solid #e2e8f0;
-  border-radius: 8px;
+  padding: 8px 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
   font-size: 14px;
-  background: #F8FAFC;
-  color: #0f172a;
-  transition: border-color 0.2s;
-  outline: none;
   font-family: inherit;
-}
-
-.form-group input:focus {
-  border-color: #0284C7;
-  background: #fff;
-}
-
-.btn-primary {
   width: 100%;
-  padding: 12px;
-  background: #0284C7;
-  color: #ffffff;
+}
+
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-wrapper input {
+  flex: 1;
+  padding-right: 38px;
+}
+
+.eye-btn {
+  position: absolute;
+  right: 6px;
+  background: none;
   border: none;
-  border-radius: 8px;
-  font-size: 15px;
-  font-weight: 600;
   cursor: pointer;
-  margin-top: 8px;
-  transition: background 0.2s;
+  padding: 0;
+  margin: 0;
+  font-size: 16px;
+  color: #555;
+  line-height: 1;
+}
+
+button {
+  padding: 9px 16px;
+  font-size: 14px;
+  cursor: pointer;
+  border-radius: 4px;
+  border: 1px solid #333;
+  background: #333;
+  color: #fff;
   font-family: inherit;
+  margin-top: 6px;
 }
 
-.btn-primary:hover {
-  background: #0369a1;
-}
-
-.btn-primary:disabled {
-  background: #93c5fd;
+button:disabled {
+  opacity: 0.5;
   cursor: not-allowed;
 }
 
-.auth-footer {
-  text-align: center;
-  margin-top: 20px;
+.auth-card p {
+  margin-top: 14px;
   font-size: 14px;
-  color: #64748B;
 }
 
-.auth-footer a {
-  color: #0284C7;
-  font-weight: 600;
-  text-decoration: none;
+.error {
+  color: red;
+  font-size: 13px;
 }
 
-.auth-footer a:hover {
-  text-decoration: underline;
-}
-
-.alert {
-  padding: 10px 14px;
-  border-radius: 8px;
-  font-size: 14px;
-  margin-bottom: 16px;
-}
-
-.alert-error {
-  background: #fee2e2;
-  color: #b91c1c;
-  border: 1px solid #fca5a5;
-}
-
-.alert-success {
-  background: #d1fae5;
-  color: #065f46;
-  border: 1px solid #6ee7b7;
-}
-
-/* ── Dashboard ── */
-.dashboard {
-  min-height: 100vh;
-  background: #F8FAFC;
-}
-
+/* Dashboard */
 .navbar {
-  background: #ffffff;
-  border-bottom: 1px solid #e2e8f0;
-  padding: 0 32px;
-  height: 64px;
+  background: #fff;
+  border-bottom: 1px solid #ddd;
+  padding: 12px 24px;
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  box-shadow: 0 1px 4px rgba(2, 132, 199, 0.06);
-}
-
-.navbar-brand {
-  display: flex;
   align-items: center;
-  gap: 10px;
-  font-size: 18px;
-  font-weight: 700;
-  color: #0284C7;
 }
 
-.navbar-icon {
-  width: 34px;
-  height: 34px;
-  background: #0284C7;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-  font-size: 16px;
-}
-
-.navbar-actions {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-
-.navbar-user {
-  font-size: 14px;
-  color: #64748B;
-}
-
-.navbar-user strong {
-  color: #0f172a;
-}
-
-.btn-outline {
-  padding: 7px 18px;
-  background: transparent;
-  color: #0284C7;
-  border: 1.5px solid #0284C7;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-  font-family: inherit;
-}
-
-.btn-outline:hover {
-  background: #0284C7;
-  color: #fff;
+.navbar button {
+  margin-left: 10px;
+  padding: 6px 12px;
 }
 
 .dashboard-content {
-  padding: 40px 32px;
-  max-width: 900px;
-  margin: 0 auto;
+  padding: 32px 24px;
+  max-width: 800px;
 }
 
-.welcome-card {
-  background: linear-gradient(135deg, #0284C7 0%, #0369a1 100%);
-  color: #ffffff;
-  border-radius: 16px;
-  padding: 36px;
-  margin-bottom: 32px;
-}
-
-.welcome-card h1 {
-  font-size: 26px;
-  font-weight: 700;
-  margin-bottom: 8px;
-}
-
-.welcome-card p {
-  font-size: 15px;
-  opacity: 0.88;
-}
-
-.info-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 20px;
-}
-
-.info-card {
-  background: #ffffff;
-  border-radius: 12px;
-  padding: 24px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-  border-left: 4px solid #0284C7;
-}
-
-.info-card .label {
-  font-size: 12px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: #64748B;
+.dashboard-content h2 {
   margin-bottom: 6px;
 }
 
-.info-card .value {
-  font-size: 16px;
-  font-weight: 600;
-  color: #0f172a;
+.dashboard-content p {
+  margin-bottom: 20px;
+  color: #555;
 }
 
-.badge {
-  display: inline-block;
-  padding: 3px 10px;
-  background: #dbeafe;
-  color: #1d4ed8;
-  border-radius: 20px;
-  font-size: 13px;
-  font-weight: 600;
+.dashboard-content hr {
+  margin-bottom: 16px;
+  border: none;
+  border-top: 1px solid #ddd;
+}
+
+.dashboard-content button {
+  margin-right: 10px;
 }

@@ -13,6 +13,7 @@ export default function RegisterPage() {
   const [error, setError] = useState('');
   const [fieldErrors, setFieldErrors] = useState({});
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -45,102 +46,91 @@ export default function RegisterPage() {
   return (
     <div className="auth-page">
       <div className="auth-card">
-        <div className="auth-logo">
-          <div className="auth-logo-icon">🔍</div>
-          <span className="auth-logo-text">Lost&amp;Found Portal</span>
-        </div>
+        <h2>Lost &amp; Found Portal</h2>
+        <h3>Create Account</h3>
 
-        <h2 className="auth-title">Create an account</h2>
-        <p className="auth-subtitle">Join the CIT-U Lost&amp;Found Portal.</p>
-
-        {error && <div className="alert alert-error">{error}</div>}
+        {error && <p className="error">{error}</p>}
 
         <form onSubmit={handleSubmit} noValidate>
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="firstname">First name</label>
-              <input
-                id="firstname"
-                type="text"
-                name="firstname"
-                placeholder="Kent"
-                value={form.firstname}
-                onChange={handleChange}
-                required
-              />
-              {fieldErrors.firstname && (
-                <span style={{ color: '#EF4444', fontSize: 12, marginTop: 4 }}>
-                  {fieldErrors.firstname}
-                </span>
-              )}
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="lastname">Last name</label>
-              <input
-                id="lastname"
-                type="text"
-                name="lastname"
-                placeholder="Bebita"
-                value={form.lastname}
-                onChange={handleChange}
-                required
-              />
-              {fieldErrors.lastname && (
-                <span style={{ color: '#EF4444', fontSize: 12, marginTop: 4 }}>
-                  {fieldErrors.lastname}
-                </span>
-              )}
-            </div>
+          <div className="form-group">
+            <label htmlFor="firstname">First Name</label>
+            <input
+              id="firstname"
+              type="text"
+              name="firstname"
+              value={form.firstname}
+              onChange={handleChange}
+              required
+            />
+            {fieldErrors.firstname && <p className="error">{fieldErrors.firstname}</p>}
           </div>
 
           <div className="form-group">
-            <label htmlFor="email">Email address</label>
+            <label htmlFor="lastname">Last Name</label>
+            <input
+              id="lastname"
+              type="text"
+              name="lastname"
+              value={form.lastname}
+              onChange={handleChange}
+              required
+            />
+            {fieldErrors.lastname && <p className="error">{fieldErrors.lastname}</p>}
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="email">Email</label>
             <input
               id="email"
               type="email"
               name="email"
-              placeholder="you@cit.edu"
               value={form.email}
               onChange={handleChange}
               required
-              autoComplete="email"
             />
-            {fieldErrors.email && (
-              <span style={{ color: '#EF4444', fontSize: 12, marginTop: 4 }}>
-                {fieldErrors.email}
-              </span>
-            )}
+            {fieldErrors.email && <p className="error">{fieldErrors.email}</p>}
           </div>
 
           <div className="form-group">
             <label htmlFor="password">Password</label>
-            <input
-              id="password"
-              type="password"
-              name="password"
-              placeholder="Min. 8 characters"
-              value={form.password}
-              onChange={handleChange}
-              required
-              autoComplete="new-password"
-            />
-            {fieldErrors.password && (
-              <span style={{ color: '#EF4444', fontSize: 12, marginTop: 4 }}>
-                {fieldErrors.password}
-              </span>
-            )}
+            <div className="input-wrapper">
+              <input
+                id="password"
+                type={showPassword ? 'text' : 'password'}
+                name="password"
+                value={form.password}
+                onChange={handleChange}
+                required
+              />
+              <button
+                type="button"
+                className="eye-btn"
+                onClick={() => setShowPassword((v) => !v)}
+                tabIndex={-1}
+              >
+                {showPassword ? (
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+                    <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+                    <line x1="1" y1="1" x2="23" y2="23"/>
+                  </svg>
+                ) : (
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                    <circle cx="12" cy="12" r="3"/>
+                  </svg>
+                )}
+              </button>
+            </div>
+            {fieldErrors.password && <p className="error">{fieldErrors.password}</p>}
           </div>
 
-          <button type="submit" className="btn-primary" disabled={loading}>
-            {loading ? 'Creating account…' : 'Create Account'}
+          <button type="submit" disabled={loading}>
+            {loading ? 'Creating account...' : 'Create Account'}
           </button>
         </form>
 
-        <p className="auth-footer">
-          Already have an account?{' '}
-          <Link to="/login">Sign in</Link>
-        </p>
+        <p>Already have an account? <Link to="/login">Sign in</Link></p>
       </div>
     </div>
   );

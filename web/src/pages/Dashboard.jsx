@@ -12,39 +12,19 @@ export default function Dashboard() {
   return (
     <div className="dashboard">
       <nav className="navbar">
-        <div className="navbar-brand">
-          <div className="navbar-icon">🔍</div>
-          Lost&amp;Found Portal
-        </div>
-        <div className="navbar-actions">
-          <span className="navbar-user">
-            Logged in as <strong>{user.firstname} {user.lastname}</strong>
-          </span>
-          <button className="btn-outline" onClick={handleLogout}>
-            Logout
-          </button>
-        </div>
+        <span><strong>Lost &amp; Found Portal</strong></span>
+        <span>
+          {user.firstname} {user.lastname} &nbsp;|
+          <button onClick={handleLogout}>Logout</button>
+        </span>
       </nav>
 
       <div className="dashboard-content">
-        <div className="welcome-card">
-          <h1>Welcome, {user.firstname}! 👋</h1>
-          <p>
-            You are now logged in to the CIT-U Lost&amp;Found Portal. Report found items,
-            browse the live feed, and claim your lost belongings.
-          </p>
-        </div>
-
-        <div className="info-grid">
-          <div className="info-card">
-            <div className="label">Full Name</div>
-            <div className="value">{user.firstname} {user.lastname}</div>
-          </div>
-          <div className="info-card">
-            <div className="label">Email</div>
-            <div className="value">{user.email}</div>
-          </div>
-        </div>
+        <h2>Welcome, {user.firstname}!</h2>
+        <p>Email: {user.email}</p>
+        <hr />
+        <button disabled>Report Found Item (coming soon)</button>
+        <button disabled>View Lost Items (coming soon)</button>
       </div>
     </div>
   );
