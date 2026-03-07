@@ -27,9 +27,7 @@ export default function RegisterPage() {
     setFieldErrors({});
     try {
       const res = await register(form);
-      const { accessToken, refreshToken, user } = res.data.data;
-      localStorage.setItem('accessToken', accessToken);
-      localStorage.setItem('refreshToken', refreshToken);
+      const user = res.data.data;
       localStorage.setItem('user', JSON.stringify(user));
       navigate('/dashboard');
     } catch (err) {

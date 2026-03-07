@@ -1,9 +1,9 @@
 package edu.cit.bebita.lostandfoundportal.controller;
 
 import edu.cit.bebita.lostandfoundportal.dto.ApiResponse;
-import edu.cit.bebita.lostandfoundportal.dto.AuthResponse;
 import edu.cit.bebita.lostandfoundportal.dto.LoginRequest;
 import edu.cit.bebita.lostandfoundportal.dto.RegisterRequest;
+import edu.cit.bebita.lostandfoundportal.dto.UserResponse;
 import edu.cit.bebita.lostandfoundportal.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -21,14 +21,14 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<ApiResponse<AuthResponse>> register(@Valid @RequestBody RegisterRequest request) {
-        AuthResponse authResponse = userService.register(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(authResponse));
+    public ResponseEntity<ApiResponse<UserResponse>> register(@Valid @RequestBody RegisterRequest request) {
+        UserResponse user = userService.register(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(user));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse<AuthResponse>> login(@Valid @RequestBody LoginRequest request) {
-        AuthResponse authResponse = userService.login(request);
-        return ResponseEntity.ok(ApiResponse.success(authResponse));
+    public ResponseEntity<ApiResponse<UserResponse>> login(@Valid @RequestBody LoginRequest request) {
+        UserResponse user = userService.login(request);
+        return ResponseEntity.ok(ApiResponse.success(user));
     }
 }

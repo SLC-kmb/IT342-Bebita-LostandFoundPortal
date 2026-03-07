@@ -5,8 +5,6 @@ export default function Dashboard() {
   const user = JSON.parse(localStorage.getItem('user') || '{}');
 
   const handleLogout = () => {
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
     localStorage.removeItem('user');
     navigate('/login');
   };
@@ -45,12 +43,6 @@ export default function Dashboard() {
           <div className="info-card">
             <div className="label">Email</div>
             <div className="value">{user.email}</div>
-          </div>
-          <div className="info-card">
-            <div className="label">Role</div>
-            <div className="value">
-              <span className="badge">{user.role}</span>
-            </div>
           </div>
         </div>
       </div>

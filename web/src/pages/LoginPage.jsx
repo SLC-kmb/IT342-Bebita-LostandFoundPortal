@@ -19,9 +19,7 @@ export default function LoginPage() {
     setError('');
     try {
       const res = await login(form);
-      const { accessToken, refreshToken, user } = res.data.data;
-      localStorage.setItem('accessToken', accessToken);
-      localStorage.setItem('refreshToken', refreshToken);
+      const user = res.data.data;
       localStorage.setItem('user', JSON.stringify(user));
       navigate('/dashboard');
     } catch (err) {
