@@ -104,6 +104,15 @@ button:disabled {
   font-size: 13px;
 }
 
+.success {
+  color: green;
+  font-size: 13px;
+  background: #f0fff4;
+  border: 1px solid #86efac;
+  border-radius: 4px;
+  padding: 8px 10px;
+}
+
 /* Dashboard */
 .navbar {
   background: #fff;

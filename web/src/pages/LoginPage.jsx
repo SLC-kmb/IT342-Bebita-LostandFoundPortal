@@ -8,6 +8,7 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [success, setSuccess] = useState(false);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -22,7 +23,8 @@ export default function LoginPage() {
       const res = await login(form);
       const user = res.data.data;
       localStorage.setItem('user', JSON.stringify(user));
-      navigate('/dashboard');
+      setSuccess(true);
+      setTimeout(() => navigate('/dashboard'), 1500);
     } catch (err) {
       const apiError = err.response?.data?.error;
       setError(apiError?.details || apiError?.message || 'Login failed. Please try again.');
@@ -38,6 +40,7 @@ export default function LoginPage() {
         <h3>Sign In</h3>
 
         {error && <p className="error">{error}</p>}
+        {success && <p className="success">Login successful! Redirecting...</p>}
 
         <form onSubmit={handleSubmit} noValidate>
           <div className="form-group">

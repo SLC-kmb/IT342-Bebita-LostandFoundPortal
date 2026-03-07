@@ -14,6 +14,7 @@ export default function RegisterPage() {
   const [fieldErrors, setFieldErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [success, setSuccess] = useState(false);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -30,7 +31,8 @@ export default function RegisterPage() {
       const res = await register(form);
       const user = res.data.data;
       localStorage.setItem('user', JSON.stringify(user));
-      navigate('/dashboard');
+      setSuccess(true);
+      setTimeout(() => navigate('/dashboard'), 1500);
     } catch (err) {
       const apiError = err.response?.data?.error;
       if (apiError?.code === 'VALID-001' && typeof apiError.details === 'object') {
@@ -50,6 +52,7 @@ export default function RegisterPage() {
         <h3>Create Account</h3>
 
         {error && <p className="error">{error}</p>}
+        {success && <p className="success">Account created successfully! Redirecting...</p>}
 
         <form onSubmit={handleSubmit} noValidate>
           <div className="form-group">
