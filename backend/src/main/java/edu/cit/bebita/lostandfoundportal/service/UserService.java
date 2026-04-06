@@ -37,7 +37,21 @@ public class UserService {
         return new UserResponse(user.getEmail(), user.getFirstName(), user.getLastName());
     }
 
-    public UserResponse login(LoginRequest request) {
+    public User registerUser(RegisterRequest request) {
+        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+            throw new DuplicateEmailException("Email already registered");
+        }
+
+        User user = new User();
+        user.setFirstName(request.getFirstname());
+        user.setLastName(request.getLastname());
+        user.setEmail(request.getEmail());
+        user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
+
+        return userRepository.save(user);
+    }
+
+    public User authenticateUser(LoginRequest request) {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new InvalidCredentialsException("Invalid credentials"));
 
@@ -45,6 +59,6 @@ public class UserService {
             throw new InvalidCredentialsException("Invalid credentials");
         }
 
-        return new UserResponse(user.getEmail(), user.getFirstName(), user.getLastName());
+        return user;
     }
 }
