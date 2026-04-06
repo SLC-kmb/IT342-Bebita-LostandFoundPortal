@@ -5,9 +5,11 @@ import edu.cit.bebita.lostandfoundportal.dto.LoginRequest;
 import edu.cit.bebita.lostandfoundportal.dto.RegisterRequest;
 import edu.cit.bebita.lostandfoundportal.dto.UserResponse;
 import edu.cit.bebita.lostandfoundportal.entity.User;
+import edu.cit.bebita.lostandfoundportal.event.UserRegisteredEvent;
 import edu.cit.bebita.lostandfoundportal.exception.DuplicateEmailException;
 import edu.cit.bebita.lostandfoundportal.exception.InvalidCredentialsException;
 import edu.cit.bebita.lostandfoundportal.repository.UserRepository;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -17,11 +19,13 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final EntityDtoAdapter adapter;
+    private final ApplicationEventPublisher eventPublisher;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, EntityDtoAdapter adapter) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, EntityDtoAdapter adapter, ApplicationEventPublisher eventPublisher) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.adapter = adapter;
+        this.eventPublisher = eventPublisher;
     }
 
     public UserResponse register(RegisterRequest request) {
@@ -36,6 +40,9 @@ public class UserService {
         user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
 
         userRepository.save(user);
+
+        // Publish event for observers
+        eventPublisher.publishEvent(new UserRegisteredEvent(user));
 
         return adapter.adapt(user);
     }

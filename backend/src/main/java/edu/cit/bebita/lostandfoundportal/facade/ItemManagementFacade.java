@@ -5,10 +5,12 @@ import edu.cit.bebita.lostandfoundportal.dto.CreateItemRequest;
 import edu.cit.bebita.lostandfoundportal.dto.ItemDto;
 import edu.cit.bebita.lostandfoundportal.entity.Item;
 import edu.cit.bebita.lostandfoundportal.entity.User;
+import edu.cit.bebita.lostandfoundportal.event.ItemCreatedEvent;
 import edu.cit.bebita.lostandfoundportal.factory.ItemFactory;
 import edu.cit.bebita.lostandfoundportal.repository.ItemRepository;
 import edu.cit.bebita.lostandfoundportal.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,13 +25,15 @@ public class ItemManagementFacade {
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
     private final EntityDtoAdapter adapter;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Autowired
-    public ItemManagementFacade(ItemFactory itemFactory, ItemRepository itemRepository, UserRepository userRepository, EntityDtoAdapter adapter) {
+    public ItemManagementFacade(ItemFactory itemFactory, ItemRepository itemRepository, UserRepository userRepository, EntityDtoAdapter adapter, ApplicationEventPublisher eventPublisher) {
         this.itemFactory = itemFactory;
         this.itemRepository = itemRepository;
         this.userRepository = userRepository;
         this.adapter = adapter;
+        this.eventPublisher = eventPublisher;
     }
 
     @Transactional
@@ -39,6 +43,9 @@ public class ItemManagementFacade {
 
         Item item = itemFactory.createItem(request, user);
         Item savedItem = itemRepository.save(item);
+
+        // Publish event for observers
+        eventPublisher.publishEvent(new ItemCreatedEvent(savedItem, user));
 
         return adapter.adapt(savedItem);
     }
