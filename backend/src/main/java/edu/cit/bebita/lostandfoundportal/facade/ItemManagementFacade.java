@@ -1,5 +1,6 @@
 package edu.cit.bebita.lostandfoundportal.facade;
 
+import edu.cit.bebita.lostandfoundportal.adapter.EntityDtoAdapter;
 import edu.cit.bebita.lostandfoundportal.dto.CreateItemRequest;
 import edu.cit.bebita.lostandfoundportal.dto.ItemDto;
 import edu.cit.bebita.lostandfoundportal.entity.Item;
@@ -21,12 +22,14 @@ public class ItemManagementFacade {
     private final ItemFactory itemFactory;
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
+    private final EntityDtoAdapter adapter;
 
     @Autowired
-    public ItemManagementFacade(ItemFactory itemFactory, ItemRepository itemRepository, UserRepository userRepository) {
+    public ItemManagementFacade(ItemFactory itemFactory, ItemRepository itemRepository, UserRepository userRepository, EntityDtoAdapter adapter) {
         this.itemFactory = itemFactory;
         this.itemRepository = itemRepository;
         this.userRepository = userRepository;
+        this.adapter = adapter;
     }
 
     @Transactional
@@ -37,7 +40,7 @@ public class ItemManagementFacade {
         Item item = itemFactory.createItem(request, user);
         Item savedItem = itemRepository.save(item);
 
-        return ItemDto.fromEntity(savedItem);
+        return adapter.adapt(savedItem);
     }
 
     public List<ItemDto> searchItems(String keyword, String category, String status) {
@@ -54,7 +57,7 @@ public class ItemManagementFacade {
         }
 
         return items.stream()
-                .map(ItemDto::fromEntity)
+                .map(adapter::adapt)
                 .collect(Collectors.toList());
     }
 
@@ -70,7 +73,7 @@ public class ItemManagementFacade {
                 item.setStatus(Item.ItemStatus.CLAIMED);
                 item.setClaimedBy(user);
                 Item savedItem = itemRepository.save(item);
-                return Optional.of(ItemDto.fromEntity(savedItem));
+                return Optional.of(adapter.adapt(savedItem));
             }
         }
         return Optional.empty();
@@ -88,7 +91,7 @@ public class ItemManagementFacade {
             if (item.getUser().equals(user) || "ADMIN".equals(user.getRole())) {
                 item.setStatus(Item.ItemStatus.RETURNED);
                 Item savedItem = itemRepository.save(item);
-                return Optional.of(ItemDto.fromEntity(savedItem));
+                return Optional.of(adapter.adapt(savedItem));
             }
         }
         return Optional.empty();
@@ -96,7 +99,7 @@ public class ItemManagementFacade {
 
     public Optional<ItemDto> getItemById(Long itemId) {
         return itemRepository.findById(itemId)
-                .map(ItemDto::fromEntity);
+                .map(adapter::adapt);
     }
 
     public List<ItemDto> getItemsByUser(String userEmail) {
@@ -104,13 +107,13 @@ public class ItemManagementFacade {
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
         return itemRepository.findByUserId(user.getId()).stream()
-                .map(ItemDto::fromEntity)
+                .map(adapter::adapt)
                 .collect(Collectors.toList());
     }
 
     public List<ItemDto> getActiveItems() {
         return itemRepository.findByStatus(Item.ItemStatus.ACTIVE).stream()
-                .map(ItemDto::fromEntity)
+                .map(adapter::adapt)
                 .collect(Collectors.toList());
     }
 }

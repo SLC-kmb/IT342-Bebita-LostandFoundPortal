@@ -1,5 +1,6 @@
 package edu.cit.bebita.lostandfoundportal.service;
 
+import edu.cit.bebita.lostandfoundportal.adapter.EntityDtoAdapter;
 import edu.cit.bebita.lostandfoundportal.dto.LoginRequest;
 import edu.cit.bebita.lostandfoundportal.dto.RegisterRequest;
 import edu.cit.bebita.lostandfoundportal.dto.UserResponse;
@@ -15,10 +16,12 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final EntityDtoAdapter adapter;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, EntityDtoAdapter adapter) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.adapter = adapter;
     }
 
     public UserResponse register(RegisterRequest request) {
@@ -34,7 +37,7 @@ public class UserService {
 
         userRepository.save(user);
 
-        return new UserResponse(user.getEmail(), user.getFirstName(), user.getLastName());
+        return adapter.adapt(user);
     }
 
     public User registerUser(RegisterRequest request) {
@@ -60,5 +63,14 @@ public class UserService {
         }
 
         return user;
+    }
+
+    public UserResponse login(LoginRequest request) {
+        User user = authenticateUser(request);
+        return adapter.adapt(user);
+    }
+
+    public UserResponse getUserProfile(User user) {
+        return adapter.adapt(user);
     }
 }
