@@ -2,15 +2,14 @@ package edu.cit.bebita.lostandfoundportal.exception;
 
 import edu.cit.bebita.lostandfoundportal.dto.ApiError;
 import edu.cit.bebita.lostandfoundportal.dto.ApiResponse;
+import java.util.HashMap;
+import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -27,6 +26,20 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
                 .body(ApiResponse.error(new ApiError("DB-002", "Duplicate entry", ex.getMessage())));
+    }
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ApiResponse<Void>> handleResourceNotFound(ResourceNotFoundException ex) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(ApiResponse.error(new ApiError("NOT_FOUND-001", "Resource not found", ex.getMessage())));
+    }
+
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<ApiResponse<Void>> handleIllegalState(IllegalStateException ex) {
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(ApiResponse.error(new ApiError("STATE-001", "Invalid operation", ex.getMessage())));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
