@@ -23,8 +23,12 @@ export default function Dashboard() {
         <h2>Welcome, {user.firstname}!</h2>
         <p>Email: {user.email}</p>
         <hr />
-        <button disabled>Report Found Item (coming soon)</button>
-        <button disabled>View Lost Items (coming soon)</button>
+        <div className="dashboard-actions">
+          <button onClick={() => navigate('/report-found')}>Report Found Item</button>
+          <button onClick={() => navigate('/report-lost')}>Report Lost Item</button>
+          <button onClick={() => navigate('/lost-items')}>View Lost Items</button>
+          <button onClick={() => navigate('/found-items')}>View Found Items</button>
+        </div>
       </div>
     </div>
   );
