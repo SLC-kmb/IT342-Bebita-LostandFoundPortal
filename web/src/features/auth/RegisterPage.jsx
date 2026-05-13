@@ -1,0 +1,140 @@
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { register } from './authApi';
+
+export default function RegisterPage() {
+  const navigate = useNavigate();
+  const [form, setForm] = useState({
+    firstname: '',
+    lastname: '',
+    email: '',
+    password: '',
+  });
+  const [error, setError] = useState('');
+  const [fieldErrors, setFieldErrors] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [success, setSuccess] = useState(false);
+
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+    setError('');
+    setFieldErrors((prev) => ({ ...prev, [e.target.name]: '' }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+    setFieldErrors({});
+    try {
+      const res = await register(form);
+      const user = res.data.data;
+      localStorage.setItem('user', JSON.stringify(user));
+      setSuccess(true);
+      setTimeout(() => navigate('/dashboard'), 1500);
+    } catch (err) {
+      const apiError = err.response?.data?.error;
+      if (apiError?.code === 'VALID-001' && typeof apiError.details === 'object') {
+        setFieldErrors(apiError.details);
+      } else {
+        setError(apiError?.details || apiError?.message || 'Registration failed. Please try again.');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="auth-page">
+      <div className="auth-card">
+        <h2>Lost &amp; Found Portal</h2>
+        <h3>Create Account</h3>
+
+        {error && <p className="error">{error}</p>}
+        {success && <p className="success">Account created successfully! Redirecting...</p>}
+
+        <form onSubmit={handleSubmit} noValidate>
+          <div className="form-group">
+            <label htmlFor="firstname">First Name</label>
+            <input
+              id="firstname"
+              type="text"
+              name="firstname"
+              value={form.firstname}
+              onChange={handleChange}
+              required
+            />
+            {fieldErrors.firstname && <p className="error">{fieldErrors.firstname}</p>}
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="lastname">Last Name</label>
+            <input
+              id="lastname"
+              type="text"
+              name="lastname"
+              value={form.lastname}
+              onChange={handleChange}
+              required
+            />
+            {fieldErrors.lastname && <p className="error">{fieldErrors.lastname}</p>}
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="email">Email</label>
+            <input
+              id="email"
+              type="email"
+              name="email"
+              value={form.email}
+              onChange={handleChange}
+              required
+            />
+            {fieldErrors.email && <p className="error">{fieldErrors.email}</p>}
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="password">Password</label>
+            <div className="input-wrapper">
+              <input
+                id="password"
+                type={showPassword ? 'text' : 'password'}
+                name="password"
+                value={form.password}
+                onChange={handleChange}
+                required
+              />
+              <button
+                type="button"
+                className="eye-btn"
+                onClick={() => setShowPassword((v) => !v)}
+                tabIndex={-1}
+              >
+                {showPassword ? (
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+                    <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+                    <line x1="1" y1="1" x2="23" y2="23"/>
+                  </svg>
+                ) : (
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                    <circle cx="12" cy="12" r="3"/>
+                  </svg>
+                )}
+              </button>
+            </div>
+            {fieldErrors.password && <p className="error">{fieldErrors.password}</p>}
+          </div>
+
+          <button type="submit" disabled={loading}>
+            {loading ? 'Creating account...' : 'Create Account'}
+          </button>
+        </form>
+
+        <p>Already have an account? <Link to="/login">Sign in</Link></p>
+      </div>
+    </div>
+  );
+}

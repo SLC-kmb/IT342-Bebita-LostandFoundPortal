@@ -1,11 +1,11 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import LoginPage from './pages/LoginPage';
-import RegisterPage from './pages/RegisterPage';
-import Dashboard from './pages/Dashboard';
-import ReportLostItem from './pages/ReportLostItem';
-import ReportFoundItem from './pages/ReportFoundItem';
-import LostItems from './pages/LostItems';
-import FoundItems from './pages/FoundItems';
+import LoginPage from './features/auth/LoginPage';
+import RegisterPage from './features/auth/RegisterPage';
+import Dashboard from './features/dashboard/Dashboard';
+import ReportLostItem from './features/items/ReportLostItem';
+import ReportFoundItem from './features/items/ReportFoundItem';
+import LostItems from './features/items/LostItems';
+import FoundItems from './features/items/FoundItems';
 
 function PrivateRoute({ children }) {
   const user = localStorage.getItem('user');
