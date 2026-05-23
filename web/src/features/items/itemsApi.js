@@ -1,4 +1,4 @@
-import api from '../../shared/apiClient';
+import api from '../../lib/axios';
 
 export const reportLostItem = (data) => api.post('/items/lost', data);
 export const reportFoundItem = (data) => api.post('/items/found', data);

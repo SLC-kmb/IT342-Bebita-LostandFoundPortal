@@ -12,6 +12,9 @@ public class RegisterRequest {
     @NotBlank(message = "Last name is required")
     private String lastname;
 
+    @NotBlank(message = "Student ID is required")
+    private String studentId;
+
     @NotBlank(message = "Email is required")
     @Email(message = "Invalid email format")
     private String email;
@@ -25,6 +28,14 @@ public class RegisterRequest {
 
     public String getLastname() { return lastname; }
     public void setLastname(String lastname) { this.lastname = lastname; }
+
+    public String getStudentId() {
+        return studentId;
+    }
+
+    public void setStudentId(String studentId) {
+        this.studentId = studentId;
+    }
 
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
