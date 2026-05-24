@@ -10,7 +10,8 @@ export default function ReportFoundItem() {
     itemName: '',
     description: '',
     category: '',
-    location: '',
+    building: '',
+    specificLocation: '',
     dateFound: '',
     contactInfo: ''
   });
@@ -35,7 +36,7 @@ export default function ReportFoundItem() {
     setLoading(true);
     setError('');
 
-    if (!form.itemName || !form.description || !form.category || !form.location || !form.dateFound) {
+    if (!form.itemName || !form.description || !form.category || !form.building || !form.dateFound) {
       setError('Please fill in all required fields.');
       setLoading(false);
       return;
@@ -63,7 +64,8 @@ export default function ReportFoundItem() {
         imageUrl = data.publicUrl;
       }
 
-      await reportFoundItem({ ...form, imageUrl });
+      const finalLocation = form.specificLocation ? `${form.building} - ${form.specificLocation}` : form.building;
+      await reportFoundItem({ ...form, location: finalLocation, imageUrl });
       setSuccess(true);
       setTimeout(() => navigate('/dashboard'), 2000);
     } catch (err) {
@@ -79,8 +81,13 @@ export default function ReportFoundItem() {
     <div className="report-page">
       <nav className="navbar">
         <a href="/dashboard" className="site-logo" style={{ textDecoration: 'none' }}>
-          <span className="logo-icon">🔍</span>
-          <span>Finder</span>
+          <span className="logo-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>
+            </svg>
+          </span>
+          <span className="logo-text">Finder</span>
         </a>
         <div className="header-nav">
           <button onClick={() => navigate('/dashboard')}>← Back</button>
@@ -148,15 +155,36 @@ export default function ReportFoundItem() {
                 </select>
               </div>
               <div className="form-group">
-                <label htmlFor="location">Where was it found? *</label>
-                <input
-                  id="location"
-                  type="text"
-                  name="location"
-                  value={form.location}
+                <label htmlFor="building">Where did you find this item? *</label>
+                <select
+                  id="building"
+                  name="building"
+                  value={form.building}
                   onChange={handleChange}
-                  placeholder="e.g. Library — 3rd Floor"
                   required
+                >
+                  <option value="">Select building</option>
+                  <option value="NGE">NGE</option>
+                  <option value="RTL">RTL</option>
+                  <option value="ACAD">ACAD</option>
+                  <option value="GLE">GLE</option>
+                  <option value="Elem Building">Elem Building</option>
+                  <option value="Annex">Annex</option>
+                  <option value="Gym">Gym</option>
+                  <option value="Covered Court">Covered Court</option>
+                  <option value="Elementary Open Court">Elementary Open Court</option>
+                  <option value="Canteen (Elem Building)">Canteen (Elem Building)</option>
+                  <option value="Canteen (Engineering Building)">Canteen (Engineering Building)</option>
+                  <option value="Canteen Main">Canteen Main</option>
+                  <option value="Parking Area">Parking Area</option>
+                </select>
+                <input
+                  type="text"
+                  name="specificLocation"
+                  value={form.specificLocation}
+                  onChange={handleChange}
+                  placeholder="Added description (e.g. 3rd Floor, near stairs)"
+                  style={{ marginTop: '0.75rem' }}
                 />
               </div>
             </div>

@@ -58,6 +58,12 @@ public class ItemController {
         return ResponseEntity.ok(ApiResponse.success(items));
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<ApiResponse<ItemResponse>> getItemById(@PathVariable Long id) {
+        ItemResponse item = itemService.getItemById(id);
+        return ResponseEntity.ok(ApiResponse.success(item));
+    }
+
     @PutMapping("/claim/{id}")
     public ResponseEntity<ApiResponse<ItemResponse>> claimItem(
             @PathVariable Long id,

@@ -138,6 +138,23 @@ export default function AdminDashboard() {
     }
   };
 
+  const getRelativeTime = (dateString) => {
+    if (!dateString) return '—';
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now - date;
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMins / 60);
+    const diffDays = Math.floor(diffHours / 24);
+
+    if (diffMins < 1) return 'Just now';
+    if (diffMins < 60) return `${diffMins} min ago`;
+    if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+    if (diffDays === 1) return 'Yesterday';
+    if (diffDays < 7) return `${diffDays} days ago`;
+    return date.toLocaleDateString();
+  };
+
   const renderDashboard = () => (
     <section>
       <h1 className="section-title">Overview</h1>
@@ -171,13 +188,31 @@ export default function AdminDashboard() {
           <h2>Recent claims</h2>
           <button className="btn btn-ghost btn-sm" onClick={() => setActiveTab('claims')}>View all</button>
         </div>
-        <ul className="recent-claims-list">
+        <div className="recent-claims-list" style={{ marginTop: '1rem' }}>
           {pendingClaims.length === 0 && !loading && (
-            <li style={{ padding: '1.5rem 0', textAlign: 'center', fontSize: '0.875rem', color: 'var(--muted-foreground)' }}>
+            <div style={{ padding: '1.5rem 0', textAlign: 'center', fontSize: '0.875rem', color: 'var(--muted-foreground)' }}>
               All caught up — no pending claims.
-            </li>
+            </div>
           )}
-        </ul>
+          {pendingClaims.slice(0, 3).map((item) => (
+            <div key={item.id} className="recent-claim-item">
+              <div className="recent-claim-left">
+                {item.imageUrl ? (
+                  <img src={item.imageUrl} alt={item.itemName} className="recent-claim-img" />
+                ) : (
+                  <div className="recent-claim-img" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', fontSize: '0.7rem' }}>No img</div>
+                )}
+                <div className="recent-claim-info">
+                  <h4>{item.itemName}</h4>
+                  <p>{item.claimedBy ? `${item.claimedBy.firstname} ${item.claimedBy.lastname}` : 'Unknown'} · {getRelativeTime(item.updatedAt || item.createdAt)}</p>
+                </div>
+              </div>
+              <button className="btn btn-primary btn-sm" onClick={() => handleApprove(item.id)} disabled={actionLoading === item.id} style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', borderRadius: '9999px' }}>
+                {actionLoading === item.id ? '...' : <><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg> Approve</>}
+              </button>
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   );
@@ -190,12 +225,11 @@ export default function AdminDashboard() {
         <table className="admin-table">
           <thead>
             <tr>
-              <th>Item</th>
-              <th>Category</th>
-              <th>Location</th>
-              <th>Status</th>
-              <th>Type</th>
-              <th>Created</th>
+              <th>ITEM</th>
+              <th>CATEGORY</th>
+              <th>LOCATION</th>
+              <th>STATUS</th>
+              <th>REPORTED</th>
             </tr>
           </thead>
           <tbody>
@@ -206,12 +240,26 @@ export default function AdminDashboard() {
                   style={{ cursor: 'pointer', transition: 'background-color 0.2s' }}
                   className="hoverable-row"
                 >
-                  <td className="font-medium">{item.itemName}</td>
+                  <td className="font-medium">
+                    <div className="admin-table-item-cell">
+                      {item.imageUrl ? (
+                        <img src={item.imageUrl} alt={item.itemName} className="admin-table-img" />
+                      ) : (
+                        <div className="admin-table-img" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', fontSize: '0.6rem' }}>No img</div>
+                      )}
+                      {item.itemName}
+                    </div>
+                  </td>
                   <td className="muted">{item.category}</td>
-                  <td className="muted">📍 {item.location}</td>
-                  <td className="capitalize">{getStatusLabel(item.status)}</td>
-                  <td className="capitalize">{item.type}</td>
-                  <td className="muted">{item.createdAt ? new Date(item.createdAt).toLocaleDateString() : '—'}</td>
+                  <td className="muted">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{marginRight: '6px', verticalAlign: 'text-bottom'}}><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                    {item.location}
+                  </td>
+                  <td className="capitalize" style={{ fontWeight: '600', color: item.status === 'active' ? '#10B981' : item.status === 'pending_claim' ? '#F59E0B' : '#64748B' }}>{getStatusLabel(item.status)}</td>
+                  <td className="muted">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{marginRight: '6px', verticalAlign: 'text-bottom'}}><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                    {getRelativeTime(item.createdAt)}
+                  </td>
                 </tr>
                 {expandedItemId === item.id && (
                   <tr className="expanded-row bg-muted/20">
@@ -272,37 +320,41 @@ export default function AdminDashboard() {
           </div>
         )}
         {pendingClaims.map((item) => (
-          <div key={item.id} className="claim-card">
-            <div className="claim-card-info">
-              <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '1rem' }}>
-                <div>
-                  <p className="item-id">Item #{String(item.id).padStart(6, '0')}</p>
-                  <h3>{item.itemName}</h3>
-                </div>
-                <span className="pending-review-badge">Pending review</span>
-              </div>
-              <p className="claim-desc">"{item.description}"</p>
-              <div className="claim-meta">
-                <span><strong>{item.claimedBy ? `${item.claimedBy.firstname} ${item.claimedBy.lastname}` : '—'}</strong> · {item.claimedBy?.email || '—'}</span>
-                <span>📍 {item.location}</span>
+          <div key={item.id} className="pending-claim-container">
+            {item.imageUrl ? (
+              <img src={item.imageUrl} alt={item.itemName} className="pending-claim-img" />
+            ) : (
+              <div className="pending-claim-img" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8' }}>No Image</div>
+            )}
+            
+            <div className="pending-claim-content">
+              <div className="pending-claim-id">ITEM #{String(item.id).padStart(6, '0')}</div>
+              <h3>{item.itemName}</h3>
+              <p className="pending-claim-desc">"{item.description}"</p>
+              <div className="pending-claim-meta">
+                <strong>{item.claimedBy ? `${item.claimedBy.firstname} ${item.claimedBy.lastname}` : 'Unknown'}</strong> · {item.claimedBy?.email || 'Unknown'} &nbsp;
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{verticalAlign: 'text-bottom', margin: '0 4px'}}><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                {getRelativeTime(item.updatedAt || item.createdAt)}
               </div>
             </div>
-            <div className="claim-card-actions">
+            
+            <div className="pending-claim-actions">
+              <span className="badge-pending-review">Pending review</span>
               <button
                 className="btn btn-primary"
                 onClick={() => handleApprove(item.id)}
                 disabled={actionLoading === item.id}
-                style={{ borderRadius: 'var(--radius-lg)' }}
+                style={{ width: '100%', borderRadius: '9999px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.35rem' }}
               >
-                {actionLoading === item.id ? '...' : '✓ Approve claim'}
+                {actionLoading === item.id ? '...' : <><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg> Approve claim</>}
               </button>
               <button
                 className="btn btn-outline"
                 onClick={() => handleReject(item.id)}
                 disabled={actionLoading === item.id}
-                style={{ borderRadius: 'var(--radius-lg)' }}
+                style={{ width: '100%', borderRadius: '9999px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.35rem', borderColor: 'var(--border)' }}
               >
-                {actionLoading === item.id ? '...' : '✗ Reject'}
+                {actionLoading === item.id ? '...' : <><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg> Reject</>}
               </button>
             </div>
           </div>
@@ -376,7 +428,12 @@ export default function AdminDashboard() {
       {/* Sidebar */}
       <aside className="admin-sidebar">
         <div className="sidebar-header">
-          <span className="logo-icon">🔍</span>
+          <span className="logo-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>
+            </svg>
+          </span>
           <div className="sidebar-header-text">
             <p>Finder</p>
             <p>Admin console</p>

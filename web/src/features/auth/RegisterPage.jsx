@@ -29,6 +29,27 @@ export default function RegisterPage() {
     setLoading(true);
     setError('');
     setFieldErrors({});
+
+    const errors = {};
+    if (!/^[A-Za-z\s]+$/.test(form.firstname)) {
+      errors.firstname = "First name must only contain letters.";
+    }
+    if (!/^[A-Za-z\s]+$/.test(form.lastname)) {
+      errors.lastname = "Last name must only contain letters.";
+    }
+    if (!/^\d{2}-\d{4}-\d{3}$/.test(form.studentId)) {
+      errors.studentId = "ID Number must be in the format XX-XXXX-XXX.";
+    }
+    if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$/.test(form.password)) {
+      errors.password = "Password must be at least 6 chars with 1 uppercase, 1 lowercase, and 1 number.";
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
+      setLoading(false);
+      return;
+    }
+
     try {
       await register(form);
       setSuccess(true);

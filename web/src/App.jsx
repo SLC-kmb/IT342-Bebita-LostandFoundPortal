@@ -10,6 +10,7 @@ import ReportFoundItem from './features/items/ReportFoundItem';
 import LostItems from './features/items/LostItems';
 import FoundItems from './features/items/FoundItems';
 import AdminDashboard from './features/admin/AdminDashboard';
+import Profile from './features/auth/Profile';
 
 function PrivateRoute({ children }) {
   const token = localStorage.getItem('token');
@@ -80,6 +81,14 @@ export default function App() {
             <AdminRoute>
               <AdminDashboard />
             </AdminRoute>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <PrivateRoute>
+              <Profile />
+            </PrivateRoute>
           }
         />
       </Routes>

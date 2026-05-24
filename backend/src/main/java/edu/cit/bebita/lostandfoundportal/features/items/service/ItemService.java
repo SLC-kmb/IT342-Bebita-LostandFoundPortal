@@ -89,6 +89,12 @@ public class ItemService {
                 .collect(Collectors.toList());
     }
 
+    public ItemResponse getItemById(Long itemId) {
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new ResourceNotFoundException("Item not found"));
+        return mapToItemResponse(item);
+    }
+
     @Transactional
     public ItemResponse claimItem(Long itemId, String userEmail) {
         Item item = itemRepository.findById(itemId)

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getFoundItems, claimItem } from './itemsApi';
 import webSocketService from '../../services/websocketService';
+import ItemDetails from './ItemDetails';
 
 export default function FoundItems() {
   const navigate = useNavigate();
@@ -10,6 +11,7 @@ export default function FoundItems() {
   const [error, setError] = useState('');
   const [claiming, setClaiming] = useState(null);
   const [messageModal, setMessageModal] = useState({ isOpen: false, title: '', message: '' });
+  const [selectedItemId, setSelectedItemId] = useState(null);
 
   useEffect(() => {
     fetchFoundItems();
@@ -74,15 +76,40 @@ export default function FoundItems() {
     }
   };
 
-  if (loading) return <div className="loading">Loading found items...</div>;
+  if (loading) return (
+    <div className="items-page">
+      <nav className="navbar">
+        <a href="/dashboard" className="site-logo" style={{ textDecoration: 'none' }}>
+          <span className="logo-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>
+            </svg>
+          </span>
+          <span className="logo-text">Finder</span>
+        </a>
+        <div className="header-nav">
+          <button onClick={() => navigate('/dashboard')}>← Dashboard</button>
+        </div>
+      </nav>
+      <div className="spinner-container" style={{ minHeight: '60vh' }}>
+        <div className="spinner"></div>
+      </div>
+    </div>
+  );
   if (error) return <div className="error" style={{ margin: '2rem auto', maxWidth: '40rem' }}>{error}</div>;
 
   return (
     <div className="items-page">
       <nav className="navbar">
         <a href="/dashboard" className="site-logo" style={{ textDecoration: 'none' }}>
-          <span className="logo-icon">🔍</span>
-          <span>Finder</span>
+          <span className="logo-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>
+            </svg>
+          </span>
+          <span className="logo-text">Finder</span>
         </a>
         <div className="header-nav">
           <button onClick={() => navigate('/dashboard')}>← Dashboard</button>
@@ -103,7 +130,7 @@ export default function FoundItems() {
         ) : (
           <div className="items-grid">
             {items.map((item) => (
-              <article key={item.id} className="item-card">
+              <article key={item.id} className="item-card" onClick={() => setSelectedItemId(item.id)} style={{ cursor: 'pointer' }}>
                 <div className="item-card-body">
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     <span className="item-card-category">{item.category}</span>
@@ -133,7 +160,10 @@ export default function FoundItems() {
                   )}
                   <div className="item-card-footer">
                     <button
-                      onClick={() => handleClaim(item.id)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleClaim(item.id);
+                      }}
                       disabled={claiming === item.id || item.status === 'claimed' || item.status === 'pending_claim'}
                       className="claim-btn"
                     >
@@ -173,6 +203,8 @@ export default function FoundItems() {
           </div>
         </div>
       )}
+
+      <ItemDetails itemId={selectedItemId} onClose={() => setSelectedItemId(null)} />
     </div>
   );
 }
