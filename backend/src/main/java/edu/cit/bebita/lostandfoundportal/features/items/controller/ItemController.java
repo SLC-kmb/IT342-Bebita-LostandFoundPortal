@@ -9,9 +9,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import java.security.Principal;
 
 import edu.cit.bebita.lostandfoundportal.features.items.dto.ItemResponse;
 import edu.cit.bebita.lostandfoundportal.features.items.dto.ReportFoundItemRequest;
@@ -33,16 +33,16 @@ public class ItemController {
     @PostMapping("/lost")
     public ResponseEntity<ApiResponse<ItemResponse>> reportLostItem(
             @Valid @RequestBody ReportLostItemRequest request,
-            @RequestHeader("X-User-Email") String userEmail) {
-        ItemResponse item = itemService.reportLostItem(request, userEmail);
+            Principal principal) {
+        ItemResponse item = itemService.reportLostItem(request, principal.getName());
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(item));
     }
 
     @PostMapping("/found")
     public ResponseEntity<ApiResponse<ItemResponse>> reportFoundItem(
             @Valid @RequestBody ReportFoundItemRequest request,
-            @RequestHeader("X-User-Email") String userEmail) {
-        ItemResponse item = itemService.reportFoundItem(request, userEmail);
+            Principal principal) {
+        ItemResponse item = itemService.reportFoundItem(request, principal.getName());
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(item));
     }
 
@@ -58,11 +58,17 @@ public class ItemController {
         return ResponseEntity.ok(ApiResponse.success(items));
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<ApiResponse<ItemResponse>> getItemById(@PathVariable Long id) {
+        ItemResponse item = itemService.getItemById(id);
+        return ResponseEntity.ok(ApiResponse.success(item));
+    }
+
     @PutMapping("/claim/{id}")
     public ResponseEntity<ApiResponse<ItemResponse>> claimItem(
             @PathVariable Long id,
-            @RequestHeader("X-User-Email") String userEmail) {
-        ItemResponse item = itemService.claimItem(id, userEmail);
+            Principal principal) {
+        ItemResponse item = itemService.claimItem(id, principal.getName());
         return ResponseEntity.ok(ApiResponse.success(item));
     }
 }

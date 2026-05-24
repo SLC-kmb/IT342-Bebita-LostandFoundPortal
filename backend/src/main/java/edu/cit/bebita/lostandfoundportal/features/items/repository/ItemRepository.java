@@ -13,6 +13,16 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
 
     List<Item> findByType(String type);
 
+    List<Item> findByStatus(String status);
+
+    long countByStatus(String status);
+
+    long countByType(String type);
+
     @Query("SELECT i FROM Item i WHERE i.type = :type AND i.status = 'active'")
     List<Item> findActiveItemsByType(String type);
+
+    List<Item> findByReportedBy(edu.cit.bebita.lostandfoundportal.features.auth.model.User reportedBy);
+    
+    List<Item> findByClaimedByUser(edu.cit.bebita.lostandfoundportal.features.auth.model.User claimedByUser);
 }

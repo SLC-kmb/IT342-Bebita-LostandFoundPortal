@@ -21,6 +21,7 @@ public class ItemResponse {
     private UserResponse claimedBy;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private String imageUrl;
 
     // Getters and Setters
     public Long getId() { return id; }
@@ -64,4 +65,7 @@ public class ItemResponse {
 
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
+
+    public String getImageUrl() { return imageUrl; }
+    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
 }

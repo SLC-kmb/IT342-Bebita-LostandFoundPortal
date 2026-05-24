@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { register } from './authApi';
+import { register, googleLogin } from './authApi';
+import { GoogleLogin } from '@react-oauth/google';
 
 export default function RegisterPage() {
   const navigate = useNavigate();
   const [form, setForm] = useState({
     firstname: '',
     lastname: '',
+    studentId: '',
     email: '',
     password: '',
   });
@@ -27,12 +29,31 @@ export default function RegisterPage() {
     setLoading(true);
     setError('');
     setFieldErrors({});
+
+    const errors = {};
+    if (!/^[A-Za-z\s]+$/.test(form.firstname)) {
+      errors.firstname = "First name must only contain letters.";
+    }
+    if (!/^[A-Za-z\s]+$/.test(form.lastname)) {
+      errors.lastname = "Last name must only contain letters.";
+    }
+    if (!/^\d{2}-\d{4}-\d{3}$/.test(form.studentId)) {
+      errors.studentId = "ID Number must be in the format XX-XXXX-XXX.";
+    }
+    if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$/.test(form.password)) {
+      errors.password = "Password must be at least 6 chars with 1 uppercase, 1 lowercase, and 1 number.";
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
+      setLoading(false);
+      return;
+    }
+
     try {
-      const res = await register(form);
-      const user = res.data.data;
-      localStorage.setItem('user', JSON.stringify(user));
+      await register(form);
       setSuccess(true);
-      setTimeout(() => navigate('/dashboard'), 1500);
+      setForm({ firstname: '', lastname: '', studentId: '', email: '', password: '' });
     } catch (err) {
       const apiError = err.response?.data?.error;
       if (apiError?.code === 'VALID-001' && typeof apiError.details === 'object') {
@@ -45,40 +66,76 @@ export default function RegisterPage() {
     }
   };
 
+  const handleGoogleSuccess = async (credentialResponse) => {
+    setLoading(true);
+    setError('');
+    try {
+      const res = await googleLogin(credentialResponse.credential);
+      const { token, user } = res.data.data;
+      localStorage.setItem('token', token);
+      localStorage.setItem('user', JSON.stringify(user));
+      setSuccess(true);
+      setTimeout(() => navigate('/dashboard'), 1500);
+    } catch (err) {
+      const apiError = err.response?.data?.error;
+      setError(apiError?.details || apiError?.message || 'Google Registration failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="auth-page">
       <div className="auth-card">
-        <h2>Lost &amp; Found Portal</h2>
-        <h3>Create Account</h3>
+        <h2>Finder</h2>
+        <h3>Create your account</h3>
 
         {error && <p className="error">{error}</p>}
-        {success && <p className="success">Account created successfully! Redirecting...</p>}
+        {success && <p className="success">Account created! Please check your email to verify your account before signing in.</p>}
 
         <form onSubmit={handleSubmit} noValidate>
-          <div className="form-group">
-            <label htmlFor="firstname">First Name</label>
-            <input
-              id="firstname"
-              type="text"
-              name="firstname"
-              value={form.firstname}
-              onChange={handleChange}
-              required
-            />
-            {fieldErrors.firstname && <p className="error">{fieldErrors.firstname}</p>}
+          <div className="form-row">
+            <div className="form-group">
+              <label htmlFor="firstname">First Name</label>
+              <input
+                id="firstname"
+                type="text"
+                name="firstname"
+                value={form.firstname}
+                onChange={handleChange}
+                placeholder="Jane"
+                required
+              />
+              {fieldErrors.firstname && <p className="error">{fieldErrors.firstname}</p>}
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="lastname">Last Name</label>
+              <input
+                id="lastname"
+                type="text"
+                name="lastname"
+                value={form.lastname}
+                onChange={handleChange}
+                placeholder="Doe"
+                required
+              />
+              {fieldErrors.lastname && <p className="error">{fieldErrors.lastname}</p>}
+            </div>
           </div>
 
           <div className="form-group">
-            <label htmlFor="lastname">Last Name</label>
+            <label htmlFor="studentId">Student ID Number</label>
             <input
-              id="lastname"
+              id="studentId"
               type="text"
-              name="lastname"
-              value={form.lastname}
+              name="studentId"
+              value={form.studentId}
               onChange={handleChange}
+              placeholder="23-6492-687"
               required
             />
-            {fieldErrors.lastname && <p className="error">{fieldErrors.lastname}</p>}
+            {fieldErrors.studentId && <p className="error">{fieldErrors.studentId}</p>}
           </div>
 
           <div className="form-group">
@@ -89,6 +146,7 @@ export default function RegisterPage() {
               name="email"
               value={form.email}
               onChange={handleChange}
+              placeholder="Email"
               required
             />
             {fieldErrors.email && <p className="error">{fieldErrors.email}</p>}
@@ -103,6 +161,7 @@ export default function RegisterPage() {
                 name="password"
                 value={form.password}
                 onChange={handleChange}
+                placeholder="Create a strong password"
                 required
               />
               <button
@@ -128,9 +187,19 @@ export default function RegisterPage() {
             {fieldErrors.password && <p className="error">{fieldErrors.password}</p>}
           </div>
 
-          <button type="submit" disabled={loading}>
+          <button type="submit" className="btn btn-primary btn-lg" disabled={loading} style={{ width: '100%', marginBottom: '1rem' }}>
             {loading ? 'Creating account...' : 'Create Account'}
           </button>
+
+          <div style={{ display: 'flex', justifyContent: 'center', margin: '1rem 0' }}>
+            <GoogleLogin
+              onSuccess={handleGoogleSuccess}
+              onError={() => setError('Google Registration Failed')}
+              theme="filled_blue"
+              type="icon"
+              shape="circle"
+            />
+          </div>
         </form>
 
         <p>Already have an account? <Link to="/login">Sign in</Link></p>

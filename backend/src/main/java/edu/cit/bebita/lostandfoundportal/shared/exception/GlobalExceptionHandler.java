@@ -57,6 +57,13 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.error(new ApiError("VALID-001", "Validation failed", fieldErrors)));
     }
 
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<ApiResponse<Void>> handleUnauthorized(UnauthorizedException ex) {
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(ApiResponse.error(new ApiError("ADMIN-001", "Access denied", ex.getMessage())));
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Void>> handleGeneral(Exception ex) {
         return ResponseEntity
