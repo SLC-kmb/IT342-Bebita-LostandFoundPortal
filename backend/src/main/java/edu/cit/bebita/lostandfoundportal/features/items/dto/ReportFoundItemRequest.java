@@ -24,6 +24,8 @@ public class ReportFoundItemRequest {
 
     private String contactInfo;
 
+    private String imageUrl;
+
     // Getters and Setters
     public String getItemName() { return itemName; }
     public void setItemName(String itemName) { this.itemName = itemName; }
@@ -42,4 +44,7 @@ public class ReportFoundItemRequest {
 
     public String getContactInfo() { return contactInfo; }
     public void setContactInfo(String contactInfo) { this.contactInfo = contactInfo; }
+
+    public String getImageUrl() { return imageUrl; }
+    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
 }
