@@ -103,7 +103,6 @@ export default function RegisterPage() {
                 name="firstname"
                 value={form.firstname}
                 onChange={handleChange}
-                placeholder="Jane"
                 required
               />
               {fieldErrors.firstname && <p className="error">{fieldErrors.firstname}</p>}
@@ -117,7 +116,6 @@ export default function RegisterPage() {
                 name="lastname"
                 value={form.lastname}
                 onChange={handleChange}
-                placeholder="Doe"
                 required
               />
               {fieldErrors.lastname && <p className="error">{fieldErrors.lastname}</p>}
