@@ -61,28 +61,42 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleApprove = async (id) => {
-    setActionLoading(id);
-    try {
-      await approveClaim(id);
-      await loadAllData();
-    } catch {
-      setMessageModal({ isOpen: true, title: 'Error', message: 'Failed to approve claim.' });
-    } finally {
-      setActionLoading(null);
-    }
+  const handleApprove = (id) => {
+    setConfirmModal({
+      isOpen: true,
+      message: 'Are you sure you want to approve this claim? The item will be marked as returned to the owner.',
+      onConfirm: async () => {
+        setConfirmModal({ isOpen: false, message: '', onConfirm: null });
+        setActionLoading('approve-' + id);
+        try {
+          await approveClaim(id);
+          await loadAllData();
+        } catch {
+          setMessageModal({ isOpen: true, title: 'Error', message: 'Failed to approve claim.' });
+        } finally {
+          setActionLoading(null);
+        }
+      }
+    });
   };
 
-  const handleReject = async (id) => {
-    setActionLoading(id);
-    try {
-      await rejectClaim(id);
-      await loadAllData();
-    } catch {
-      setMessageModal({ isOpen: true, title: 'Error', message: 'Failed to reject claim.' });
-    } finally {
-      setActionLoading(null);
-    }
+  const handleReject = (id) => {
+    setConfirmModal({
+      isOpen: true,
+      message: 'Are you sure you want to reject this claim? The item will be returned to active status.',
+      onConfirm: async () => {
+        setConfirmModal({ isOpen: false, message: '', onConfirm: null });
+        setActionLoading('reject-' + id);
+        try {
+          await rejectClaim(id);
+          await loadAllData();
+        } catch {
+          setMessageModal({ isOpen: true, title: 'Error', message: 'Failed to reject claim.' });
+        } finally {
+          setActionLoading(null);
+        }
+      }
+    });
   };
 
   const handleDeleteUser = (id) => {
@@ -343,18 +357,18 @@ export default function AdminDashboard() {
               <button
                 className="btn btn-primary"
                 onClick={() => handleApprove(item.id)}
-                disabled={actionLoading === item.id}
+                disabled={actionLoading === 'approve-' + item.id}
                 style={{ width: '100%', borderRadius: '9999px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.35rem' }}
               >
-                {actionLoading === item.id ? '...' : <><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg> Approve claim</>}
+                {actionLoading === 'approve-' + item.id ? '...' : <><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg> Approve claim</>}
               </button>
               <button
                 className="btn btn-outline"
                 onClick={() => handleReject(item.id)}
-                disabled={actionLoading === item.id}
+                disabled={actionLoading === 'reject-' + item.id}
                 style={{ width: '100%', borderRadius: '9999px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.35rem', borderColor: 'var(--border)' }}
               >
-                {actionLoading === item.id ? '...' : <><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg> Reject</>}
+                {actionLoading === 'reject-' + item.id ? '...' : <><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg> Reject</>}
               </button>
             </div>
           </div>

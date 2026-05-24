@@ -14,18 +14,26 @@ import edu.cit.bebita.lostandfoundportal.features.auth.repository.UserRepository
 import edu.cit.bebita.lostandfoundportal.features.items.dto.ItemResponse;
 import edu.cit.bebita.lostandfoundportal.features.items.model.Item;
 import edu.cit.bebita.lostandfoundportal.features.items.repository.ItemRepository;
+import edu.cit.bebita.lostandfoundportal.features.notifications.dto.NotificationDto;
+import edu.cit.bebita.lostandfoundportal.features.notifications.model.Notification;
+import edu.cit.bebita.lostandfoundportal.features.notifications.repository.NotificationRepository;
 import edu.cit.bebita.lostandfoundportal.shared.exception.ResourceNotFoundException;
 import edu.cit.bebita.lostandfoundportal.shared.exception.UnauthorizedException;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 @Service
 public class AdminService {
 
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
+    private final NotificationRepository notificationRepository;
+    private final SimpMessagingTemplate messagingTemplate;
 
-    public AdminService(ItemRepository itemRepository, UserRepository userRepository) {
+    public AdminService(ItemRepository itemRepository, UserRepository userRepository, NotificationRepository notificationRepository, SimpMessagingTemplate messagingTemplate) {
         this.itemRepository = itemRepository;
         this.userRepository = userRepository;
+        this.notificationRepository = notificationRepository;
+        this.messagingTemplate = messagingTemplate;
     }
 
     /**
@@ -87,6 +95,43 @@ public class AdminService {
 
         item.setStatus("claimed");
         Item updatedItem = itemRepository.save(item);
+
+        if ("lost".equals(item.getType()) && item.getReportedBy() != null) {
+            String title = "Claim Approved!";
+            String message = "The item you reported as lost (" + item.getItemName() + ") has been received by admin. Please claim it at the admin office.";
+            
+            Notification notification = new Notification(item.getReportedBy(), title, message);
+            Notification savedNotification = notificationRepository.save(notification);
+            
+            NotificationDto dto = new NotificationDto(savedNotification.getId(), savedNotification.getTitle(), savedNotification.getMessage(), savedNotification.isRead(), savedNotification.getCreatedAt());
+            String safeEmail = item.getReportedBy().getEmail().replaceAll("[@.]", "_");
+            messagingTemplate.convertAndSend("/topic/notifications/" + safeEmail, dto);
+        }
+
+        if ("found".equals(item.getType()) && item.getReportedBy() != null && item.getClaimedByUser() != null) {
+            // Notification to Claimant
+            String claimantTitle = "Claim Approved!";
+            String claimantMessage = "Your claim for (" + item.getItemName() + ") has been verified and approved by the admin. You may now retrieve it at the Admin Office.";
+            
+            Notification claimantNotification = new Notification(item.getClaimedByUser(), claimantTitle, claimantMessage);
+            Notification savedClaimantNotif = notificationRepository.save(claimantNotification);
+            
+            NotificationDto claimantDto = new NotificationDto(savedClaimantNotif.getId(), savedClaimantNotif.getTitle(), savedClaimantNotif.getMessage(), savedClaimantNotif.isRead(), savedClaimantNotif.getCreatedAt());
+            String safeClaimantEmail = item.getClaimedByUser().getEmail().replaceAll("[@.]", "_");
+            messagingTemplate.convertAndSend("/topic/notifications/" + safeClaimantEmail, claimantDto);
+
+            // Notification to Finder
+            String finderTitle = "Found Item Claimed";
+            String finderMessage = "The item you found (" + item.getItemName() + ") has been successfully verified and returned to its rightful owner. Thank you for your honesty!";
+            
+            Notification finderNotification = new Notification(item.getReportedBy(), finderTitle, finderMessage);
+            Notification savedFinderNotif = notificationRepository.save(finderNotification);
+            
+            NotificationDto finderDto = new NotificationDto(savedFinderNotif.getId(), savedFinderNotif.getTitle(), savedFinderNotif.getMessage(), savedFinderNotif.isRead(), savedFinderNotif.getCreatedAt());
+            String safeFinderEmail = item.getReportedBy().getEmail().replaceAll("[@.]", "_");
+            messagingTemplate.convertAndSend("/topic/notifications/" + safeFinderEmail, finderDto);
+        }
+
         return mapToItemResponse(updatedItem);
     }
 
@@ -104,9 +149,48 @@ public class AdminService {
             throw new IllegalStateException("Item does not have a pending claim");
         }
 
+        User claimant = item.getClaimedByUser();
+        
         item.setStatus("active");
         item.setClaimedByUser(null);
         Item updatedItem = itemRepository.save(item);
+
+        if (claimant != null) {
+            String finderTitle = "Claim Rejected";
+            String finderMessage = "Your claim for the item (" + item.getItemName() + ") could not be verified and has been rejected by the admin. The item has been returned to active status.";
+            
+            Notification finderNotification = new Notification(claimant, finderTitle, finderMessage);
+            Notification savedFinderNotif = notificationRepository.save(finderNotification);
+            
+            NotificationDto finderDto = new NotificationDto(savedFinderNotif.getId(), savedFinderNotif.getTitle(), savedFinderNotif.getMessage(), savedFinderNotif.isRead(), savedFinderNotif.getCreatedAt());
+            String safeFinderEmail = claimant.getEmail().replaceAll("[@.]", "_");
+            messagingTemplate.convertAndSend("/topic/notifications/" + safeFinderEmail, finderDto);
+        }
+
+        if ("lost".equals(item.getType()) && item.getReportedBy() != null) {
+            String ownerTitle = "Update on your Lost Item";
+            String ownerMessage = "The recent claim on your lost item (" + item.getItemName() + ") could not be verified and was rejected by the admin. The item is still marked as Lost.";
+            
+            Notification ownerNotification = new Notification(item.getReportedBy(), ownerTitle, ownerMessage);
+            Notification savedOwnerNotif = notificationRepository.save(ownerNotification);
+            
+            NotificationDto ownerDto = new NotificationDto(savedOwnerNotif.getId(), savedOwnerNotif.getTitle(), savedOwnerNotif.getMessage(), savedOwnerNotif.isRead(), savedOwnerNotif.getCreatedAt());
+            String safeOwnerEmail = item.getReportedBy().getEmail().replaceAll("[@.]", "_");
+            messagingTemplate.convertAndSend("/topic/notifications/" + safeOwnerEmail, ownerDto);
+        }
+
+        if ("found".equals(item.getType()) && item.getReportedBy() != null) {
+            String finderTitle = "Claim Rejected by Admin";
+            String finderMessage = "A recent claim attempt for the item you found (" + item.getItemName() + ") was rejected by the admin. The item remains active on the portal.";
+            
+            Notification finderNotification = new Notification(item.getReportedBy(), finderTitle, finderMessage);
+            Notification savedFinderNotif = notificationRepository.save(finderNotification);
+            
+            NotificationDto finderDto = new NotificationDto(savedFinderNotif.getId(), savedFinderNotif.getTitle(), savedFinderNotif.getMessage(), savedFinderNotif.isRead(), savedFinderNotif.getCreatedAt());
+            String safeFinderEmail = item.getReportedBy().getEmail().replaceAll("[@.]", "_");
+            messagingTemplate.convertAndSend("/topic/notifications/" + safeFinderEmail, finderDto);
+        }
+
         return mapToItemResponse(updatedItem);
     }
 

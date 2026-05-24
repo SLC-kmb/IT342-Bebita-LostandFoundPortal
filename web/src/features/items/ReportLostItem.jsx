@@ -89,9 +89,6 @@ export default function ReportLostItem() {
           </span>
           <span className="logo-text">Finder</span>
         </a>
-        <div className="header-nav">
-          <button onClick={() => navigate('/dashboard')}>← Back</button>
-        </div>
       </nav>
 
       <div className="report-container">
@@ -216,13 +213,57 @@ export default function ReportLostItem() {
 
             <div className="form-group">
               <label htmlFor="photo">Item Photo</label>
-              <input
-                id="photo"
-                type="file"
-                accept="image/*"
-                onChange={handleFileChange}
-                style={{ padding: '0.5rem', border: '1px dashed #ccc', borderRadius: '4px', width: '100%' }}
-              />
+              <div 
+                className="file-upload-container" 
+                style={{ 
+                  position: 'relative', 
+                  border: '2px dashed #cbd5e1', 
+                  borderRadius: '8px', 
+                  padding: '2rem 1rem', 
+                  textAlign: 'center',
+                  backgroundColor: '#f8fafc',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease'
+                }}
+                onClick={() => document.getElementById('photo').click()}
+                onDragOver={(e) => { e.preventDefault(); e.currentTarget.style.borderColor = '#3b82f6'; e.currentTarget.style.backgroundColor = '#eff6ff'; }}
+                onDragLeave={(e) => { e.preventDefault(); e.currentTarget.style.borderColor = '#cbd5e1'; e.currentTarget.style.backgroundColor = '#f8fafc'; }}
+                onDrop={(e) => { 
+                  e.preventDefault(); 
+                  e.currentTarget.style.borderColor = '#cbd5e1'; 
+                  e.currentTarget.style.backgroundColor = '#f8fafc';
+                  if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                    setFile(e.dataTransfer.files[0]);
+                  }
+                }}
+              >
+                <input
+                  id="photo"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                  style={{ display: 'none' }}
+                />
+                
+                {file ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
+                    <div style={{ width: '48px', height: '48px', borderRadius: '50%', backgroundColor: '#dcfce7', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#16a34a' }}>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                    </div>
+                    <span style={{ fontWeight: '500', color: '#334155' }}>{file.name}</span>
+                    <span style={{ fontSize: '0.85rem', color: '#64748b' }}>Click to choose a different file</span>
+                  </div>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
+                    <div style={{ width: '48px', height: '48px', borderRadius: '50%', backgroundColor: '#e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b' }}>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                    </div>
+                    <span style={{ fontWeight: '500', color: '#3b82f6' }}>Click to upload</span>
+                    <span style={{ fontSize: '0.85rem', color: '#64748b' }}>or drag and drop</span>
+                    <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>PNG, JPG, GIF up to 5MB</span>
+                  </div>
+                )}
+              </div>
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem', marginTop: '0.5rem' }}>

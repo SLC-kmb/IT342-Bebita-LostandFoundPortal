@@ -6,6 +6,7 @@ import ItemDetails from './ItemDetails';
 
 export default function FoundItems() {
   const navigate = useNavigate();
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -88,9 +89,6 @@ export default function FoundItems() {
           </span>
           <span className="logo-text">Finder</span>
         </a>
-        <div className="header-nav">
-          <button onClick={() => navigate('/dashboard')}>← Dashboard</button>
-        </div>
       </nav>
       <div className="spinner-container" style={{ minHeight: '60vh' }}>
         <div className="spinner"></div>
@@ -111,12 +109,12 @@ export default function FoundItems() {
           </span>
           <span className="logo-text">Finder</span>
         </a>
-        <div className="header-nav">
-          <button onClick={() => navigate('/dashboard')}>← Dashboard</button>
-        </div>
       </nav>
 
       <div className="items-container">
+        <button className="back-link" onClick={() => navigate('/dashboard')} style={{ background: 'none', border: 'none', color: 'var(--primary-color, #1a73e8)', cursor: 'pointer', padding: 0, marginBottom: '1.5rem', fontSize: '0.95rem', fontWeight: 500 }}>
+          ← Back to dashboard
+        </button>
         <div className="items-header">
           <h2>Found Items</h2>
           <p>{items.length} items currently in our network</p>
@@ -164,10 +162,12 @@ export default function FoundItems() {
                         e.stopPropagation();
                         handleClaim(item.id);
                       }}
-                      disabled={claiming === item.id || item.status === 'claimed' || item.status === 'pending_claim'}
-                      className="claim-btn"
+                      disabled={claiming === item.id || item.status === 'claimed' || item.status === 'pending_claim' || item.reportedBy?.email === user.email}
+                      className={`claim-btn ${item.status === 'claimed' || item.status === 'pending_claim' || item.reportedBy?.email === user.email ? 'claim-btn-disabled' : ''}`}
                     >
-                      {claiming === item.id
+                      {item.reportedBy?.email === user.email
+                        ? 'Your Post'
+                        : claiming === item.id
                         ? 'Submitting...'
                         : item.status === 'claimed'
                           ? 'Returned to owner'

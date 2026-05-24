@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getLostItems, getFoundItems, claimItem } from '../items/itemsApi';
+import { getNotifications, markNotificationAsRead, clearNotification, clearAllNotifications } from '../notifications/notificationsApi';
 import webSocketService from '../../services/websocketService';
 import ItemDetails from '../items/ItemDetails';
 
@@ -13,6 +14,11 @@ export default function Dashboard() {
   const [claiming, setClaiming] = useState(null);
   const [messageModal, setMessageModal] = useState({ isOpen: false, title: '', message: '' });
   const [selectedItemId, setSelectedItemId] = useState(null);
+
+  // Notifications State
+  const [notifications, setNotifications] = useState([]);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [toastNotification, setToastNotification] = useState(null);
 
   // Filter states
   const [searchQuery, setSearchQuery] = useState('');
@@ -27,17 +33,72 @@ export default function Dashboard() {
 
   useEffect(() => {
     fetchAllItems();
+    fetchNotifications();
+
     webSocketService.connect();
+    
+    // Listen for new items
     webSocketService.subscribe('/topic/items', (newItem) => {
       setItems((prevItems) => {
         if (prevItems.some(item => item.id === newItem.id)) return prevItems;
         return [newItem, ...prevItems];
       });
     });
+
+    // Listen for real-time notifications for the logged-in user
+    if (user.email) {
+      const safeEmail = user.email.replace(/[@.]/g, '_');
+      webSocketService.subscribe(`/topic/notifications/${safeEmail}`, (newNotif) => {
+        setNotifications((prev) => [newNotif, ...prev]);
+        setToastNotification(newNotif);
+        setTimeout(() => setToastNotification(null), 5000); // Hide toast after 5 seconds
+      });
+    }
+
     return () => {
       webSocketService.disconnect();
     };
   }, []);
+
+  const fetchNotifications = async () => {
+    try {
+      const res = await getNotifications();
+      if (res.data.success) {
+        setNotifications(res.data.data);
+      }
+    } catch (err) {
+      console.error("Failed to load notifications", err);
+    }
+  };
+
+  const handleReadNotification = async (id) => {
+    try {
+      await markNotificationAsRead(id);
+      setNotifications(notifications.map(n => n.id === id ? { ...n, isRead: true } : n));
+    } catch (err) {
+      console.error("Failed to mark as read", err);
+    }
+  };
+
+  const handleClearNotification = async (id, e) => {
+    e.stopPropagation(); // prevent clicking the notification body
+    try {
+      await clearNotification(id);
+      setNotifications(notifications.filter(n => n.id !== id));
+    } catch (err) {
+      console.error("Failed to clear notification", err);
+    }
+  };
+
+  const handleClearAllNotifications = async (e) => {
+    e.stopPropagation();
+    try {
+      await clearAllNotifications();
+      setNotifications([]);
+    } catch (err) {
+      console.error("Failed to clear all notifications", err);
+    }
+  };
 
   const fetchAllItems = async () => {
     try {
@@ -130,6 +191,89 @@ export default function Dashboard() {
           {user.role === 'ADMIN' ? (
             <span className="admin-link" onClick={() => navigate('/admin')}>Admin</span>
           ) : null}
+          
+          {/* Notification Bell */}
+          <div className="notification-container" style={{ position: 'relative', marginRight: '15px' }}>
+            <div 
+              className="notification-bell" 
+              onClick={() => setShowNotifications(!showNotifications)}
+              style={{ cursor: 'pointer', position: 'relative' }}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#334155" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+              </svg>
+              {notifications.filter(n => !n.isRead).length > 0 && (
+                <span style={{
+                  position: 'absolute', top: '-5px', right: '-5px', backgroundColor: '#ef4444', 
+                  color: 'white', borderRadius: '50%', padding: '2px 6px', fontSize: '10px', fontWeight: 'bold'
+                }}>
+                  {notifications.filter(n => !n.isRead).length}
+                </span>
+              )}
+            </div>
+
+            {/* Notification Dropdown */}
+            {showNotifications && (
+              <div className="notification-dropdown" style={{
+                position: 'absolute', top: '35px', right: '0', width: '320px', 
+                backgroundColor: 'white', borderRadius: '8px', boxShadow: '0 4px 15px rgba(0,0,0,0.1)',
+                zIndex: 1000, border: '1px solid #e2e8f0', overflow: 'hidden'
+              }}>
+                <div style={{ padding: '12px 15px', borderBottom: '1px solid #e2e8f0', fontWeight: 'bold', backgroundColor: '#f8fafc', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span>Notifications</span>
+                  {notifications.length > 0 && (
+                    <button 
+                      onClick={handleClearAllNotifications}
+                      style={{ background: 'none', border: 'none', color: '#64748b', fontSize: '0.8rem', cursor: 'pointer', padding: 0 }}
+                      onMouseOver={(e) => e.target.style.color = '#ef4444'}
+                      onMouseOut={(e) => e.target.style.color = '#64748b'}
+                    >
+                      Clear All
+                    </button>
+                  )}
+                </div>
+                <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
+                  {notifications.length === 0 ? (
+                    <div style={{ padding: '20px', textAlign: 'center', color: '#64748b' }}>No notifications yet.</div>
+                  ) : (
+                    notifications.map(notif => (
+                      <div 
+                        key={notif.id} 
+                        onClick={() => handleReadNotification(notif.id)}
+                        style={{ 
+                          padding: '12px 15px', borderBottom: '1px solid #f1f5f9', cursor: 'pointer',
+                          backgroundColor: notif.isRead ? 'white' : '#eff6ff',
+                          display: 'flex', flexDirection: 'column', gap: '4px', position: 'relative'
+                        }}
+                      >
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                          <strong style={{ color: '#1e293b', fontSize: '0.9rem', paddingRight: '20px' }}>{notif.title}</strong>
+                          <button 
+                            onClick={(e) => handleClearNotification(notif.id, e)}
+                            style={{ 
+                              background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', 
+                              padding: '2px', position: 'absolute', right: '10px', top: '10px'
+                            }}
+                            onMouseOver={(e) => e.target.style.color = '#ef4444'}
+                            onMouseOut={(e) => e.target.style.color = '#94a3b8'}
+                            title="Clear notification"
+                          >
+                            ✖
+                          </button>
+                        </div>
+                        <span style={{ color: '#475569', fontSize: '0.85rem' }}>{notif.message}</span>
+                        <span style={{ color: '#94a3b8', fontSize: '0.75rem', marginTop: '4px' }}>
+                          {new Date(notif.createdAt).toLocaleString()}
+                        </span>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+
           <div className="profile-section" onClick={() => navigate('/profile')} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer' }}>
             <span style={{ fontWeight: '600', color: '#334155', fontSize: '0.95rem' }}>
               {user.firstname || user.firstName || 'User'}
@@ -143,6 +287,20 @@ export default function Dashboard() {
           </div>
         </div>
       </nav>
+
+      {/* Toast Notification Popup */}
+      {toastNotification && (
+        <div style={{
+          position: 'fixed', bottom: '20px', right: '20px', backgroundColor: '#3b82f6', color: 'white',
+          padding: '15px 20px', borderRadius: '8px', boxShadow: '0 10px 25px rgba(0,0,0,0.2)',
+          zIndex: 9999, maxWidth: '350px', animation: 'slideInRight 0.3s ease-out'
+        }}>
+          <h4 style={{ margin: '0 0 5px 0', fontSize: '1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span>🎉</span> {toastNotification.title}
+          </h4>
+          <p style={{ margin: 0, fontSize: '0.85rem', opacity: 0.9 }}>{toastNotification.message}</p>
+        </div>
+      )}
 
       {/* Hero Section */}
       <div className="hero-section">
@@ -291,10 +449,12 @@ export default function Dashboard() {
                       e.stopPropagation();
                       handleClaim(item.id);
                     }}
-                    disabled={claiming === item.id || item.status === 'claimed' || item.status === 'pending_claim'}
-                    className={`claim-btn-full ${item.status === 'claimed' || item.status === 'pending_claim' ? 'claim-btn-disabled' : ''}`}
+                    disabled={claiming === item.id || item.status === 'claimed' || item.status === 'pending_claim' || item.reportedBy?.email === user.email}
+                    className={`claim-btn-full ${item.status === 'claimed' || item.status === 'pending_claim' || item.reportedBy?.email === user.email ? 'claim-btn-disabled' : ''}`}
                   >
-                    {claiming === item.id
+                    {item.reportedBy?.email === user.email
+                      ? 'Your Post'
+                      : claiming === item.id
                       ? 'Submitting...'
                       : item.status === 'claimed'
                         ? (item.type === 'found' ? 'Returned to owner' : 'Item Found')
