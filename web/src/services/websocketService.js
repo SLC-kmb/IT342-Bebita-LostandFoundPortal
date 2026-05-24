@@ -13,8 +13,20 @@ class WebSocketService {
       return;
     }
 
+    let defaultWsUrl = 'ws://localhost:8081/ws';
+    if (import.meta.env.VITE_API_URL) {
+      try {
+        const apiUrl = new URL(import.meta.env.VITE_API_URL);
+        const protocol = apiUrl.protocol === 'https:' ? 'wss:' : 'ws:';
+        defaultWsUrl = `${protocol}//${apiUrl.host}/ws`;
+      } catch (e) {
+        console.error('Invalid VITE_API_URL for WebSocket', e);
+      }
+    }
+    const wsUrl = import.meta.env.VITE_WS_URL || defaultWsUrl;
+
     this.client = new Client({
-      brokerURL: import.meta.env.VITE_WS_URL || 'ws://localhost:8080/ws',
+      brokerURL: wsUrl,
       reconnectDelay: 5000,
       onConnect: () => {
         console.log('Connected to WebSocket');
