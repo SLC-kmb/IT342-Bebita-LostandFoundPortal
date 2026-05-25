@@ -174,7 +174,9 @@ public class ItemService {
         }
 
         Item updatedItem = itemRepository.save(item);
-        return mapToItemResponse(updatedItem);
+        ItemResponse response = mapToItemResponse(updatedItem);
+        messagingTemplate.convertAndSend("/topic/items", response);
+        return response;
     }
 
     private ItemResponse mapToItemResponse(Item item) {

@@ -37,11 +37,18 @@ export default function Dashboard() {
 
     webSocketService.connect();
     
-    // Listen for new items
-    webSocketService.subscribe('/topic/items', (newItem) => {
+    // Listen for real-time item updates (new items, status changes, claims)
+    webSocketService.subscribe('/topic/items', (updatedItem) => {
       setItems((prevItems) => {
-        if (prevItems.some(item => item.id === newItem.id)) return prevItems;
-        return [newItem, ...prevItems];
+        const index = prevItems.findIndex(item => item.id === updatedItem.id);
+        if (index > -1) {
+          // Item exists, update it
+          const newItems = [...prevItems];
+          newItems[index] = updatedItem;
+          return newItems;
+        }
+        // New item, add it to the top
+        return [updatedItem, ...prevItems];
       });
     });
 
@@ -161,6 +168,9 @@ export default function Dashboard() {
   };
 
   const filteredItems = items.filter(item => {
+    // Hide items that are already fully claimed/resolved
+    if (item.status === 'claimed') return false;
+    
     if (categoryFilter && item.category !== categoryFilter) return false;
     // Location filter just checks if location string includes building name since it's "Building - Specific"
     if (locationFilter && (!item.location || !item.location.includes(locationFilter))) return false;
@@ -490,7 +500,7 @@ export default function Dashboard() {
         </div>
       )}
 
-      <ItemDetails itemId={selectedItemId} onClose={() => setSelectedItemId(null)} />
+      <ItemDetails itemId={selectedItemId} onClose={() => setSelectedItemId(null)} userEmail={user?.email} />
     </div>
   );
 }
