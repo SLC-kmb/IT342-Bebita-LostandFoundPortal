@@ -106,6 +106,19 @@ public class AdminService {
             NotificationDto dto = new NotificationDto(savedNotification.getId(), savedNotification.getTitle(), savedNotification.getMessage(), savedNotification.isRead(), savedNotification.getCreatedAt());
             String safeEmail = item.getReportedBy().getEmail().replaceAll("[@.]", "_");
             messagingTemplate.convertAndSend("/topic/notifications/" + safeEmail, dto);
+            
+            // Also notify the Finder (claimedByUser)
+            if (item.getClaimedByUser() != null) {
+                String finderTitle = "Item Returned Successfully";
+                String finderMessage = "The item you found (" + item.getItemName() + ") has been successfully returned to its owner. Thank you for your honesty!";
+                
+                Notification finderNotification = new Notification(item.getClaimedByUser(), finderTitle, finderMessage);
+                Notification savedFinderNotif = notificationRepository.save(finderNotification);
+                
+                NotificationDto finderDto = new NotificationDto(savedFinderNotif.getId(), savedFinderNotif.getTitle(), savedFinderNotif.getMessage(), savedFinderNotif.isRead(), savedFinderNotif.getCreatedAt());
+                String safeFinderEmail = item.getClaimedByUser().getEmail().replaceAll("[@.]", "_");
+                messagingTemplate.convertAndSend("/topic/notifications/" + safeFinderEmail, finderDto);
+            }
         }
 
         if ("found".equals(item.getType()) && item.getReportedBy() != null && item.getClaimedByUser() != null) {
@@ -132,7 +145,9 @@ public class AdminService {
             messagingTemplate.convertAndSend("/topic/notifications/" + safeFinderEmail, finderDto);
         }
 
-        return mapToItemResponse(updatedItem);
+        ItemResponse response = mapToItemResponse(updatedItem);
+        messagingTemplate.convertAndSend("/topic/items", response);
+        return response;
     }
 
     /**
@@ -191,7 +206,9 @@ public class AdminService {
             messagingTemplate.convertAndSend("/topic/notifications/" + safeFinderEmail, finderDto);
         }
 
-        return mapToItemResponse(updatedItem);
+        ItemResponse response = mapToItemResponse(updatedItem);
+        messagingTemplate.convertAndSend("/topic/items", response);
+        return response;
     }
 
     /**

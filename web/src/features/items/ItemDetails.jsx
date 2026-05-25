@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { getItemById, claimItem } from './itemsApi';
 
-export default function ItemDetails({ itemId, onClose }) {
+export default function ItemDetails({ itemId, onClose, userEmail }) {
   const [item, setItem] = useState(null);
   const [loading, setLoading] = useState(true);
   const [claiming, setClaiming] = useState(false);
@@ -94,7 +94,6 @@ export default function ItemDetails({ itemId, onClose }) {
                     <span style={{ width: '6px', height: '6px', backgroundColor: getStatusDisplay(item.status, item.type).color, borderRadius: '50%' }}></span>
                     {getStatusDisplay(item.status, item.type).label}
                   </span>
-                  <span style={{ color: '#94A3B8', fontSize: '0.875rem', fontWeight: '500' }}>ID #{String(item.id).padStart(6, '0')}</span>
                 </div>
 
                 <h1 style={{ fontSize: '2.5rem', fontWeight: '700', color: '#0F172A', marginBottom: '1rem', lineHeight: '1.2' }}>{item.itemName}</h1>
@@ -124,10 +123,19 @@ export default function ItemDetails({ itemId, onClose }) {
                       {item.createdAt || item.dateFound || item.dateLost ? new Date(item.createdAt || item.dateFound || item.dateLost).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—'}
                     </span>
                   </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', padding: '1rem 0', borderBottom: '1px solid #F1F5F9' }}>
+                    <span style={{ color: '#64748B', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem' }}>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0284C7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 9h16v11H4z"/><path d="M4 9l8-4 8 4"/><path d="M12 5v4"/></svg>
+                      ID Number
+                    </span>
+                    <span style={{ fontWeight: '600', color: '#0F172A', fontSize: '0.875rem' }}>
+                      {item.reportedBy?.studentId || 'N/A'}
+                    </span>
+                  </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', padding: '1rem 0' }}>
                     <span style={{ color: '#64748B', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem' }}>
                       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0284C7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                      Turned in by
+                      {item.type === 'found' ? 'Turned in by' : 'Reported by'}
                     </span>
                     <span style={{ fontWeight: '600', color: '#0F172A', fontSize: '0.875rem' }}>
                       {item.reportedBy ? `${item.reportedBy.firstname} ${item.reportedBy.lastname}` : 'Unknown'}
@@ -137,10 +145,16 @@ export default function ItemDetails({ itemId, onClose }) {
 
                 <button 
                   onClick={handleClaim}
-                  disabled={claiming || item.status !== 'active'}
-                  style={{ width: '100%', backgroundColor: item.status !== 'active' ? '#E2E8F0' : '#0284C7', color: item.status !== 'active' ? '#94A3B8' : 'white', padding: '1rem', borderRadius: '9999px', fontWeight: '600', fontSize: '1rem', border: 'none', cursor: item.status !== 'active' ? 'not-allowed' : 'pointer', marginBottom: '1rem', transition: 'background-color 0.2s' }}
+                  disabled={claiming || item.status !== 'active' || (userEmail && item.reportedBy?.email === userEmail)}
+                  style={{ width: '100%', backgroundColor: (item.status !== 'active' || (userEmail && item.reportedBy?.email === userEmail)) ? '#E2E8F0' : '#0284C7', color: (item.status !== 'active' || (userEmail && item.reportedBy?.email === userEmail)) ? '#94A3B8' : 'white', padding: '1rem', borderRadius: '9999px', fontWeight: '600', fontSize: '1rem', border: 'none', cursor: (item.status !== 'active' || (userEmail && item.reportedBy?.email === userEmail)) ? 'not-allowed' : 'pointer', marginBottom: '1rem', transition: 'background-color 0.2s' }}
                 >
-                  {claiming ? 'Submitting...' : item.status !== 'active' ? 'Action Pending/Completed' : (item.type === 'lost' ? 'I found this' : 'Initiate claim')}
+                  {userEmail && item.reportedBy?.email === userEmail 
+                    ? 'Your Post' 
+                    : claiming 
+                      ? 'Submitting...' 
+                      : item.status !== 'active' 
+                        ? 'Action Pending/Completed' 
+                        : (item.type === 'lost' ? 'I found this' : 'Initiate claim')}
                 </button>
                 
                 <p style={{ color: '#64748B', fontSize: '0.75rem', textAlign: 'center' }}>

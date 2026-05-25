@@ -13,12 +13,13 @@ class WebSocketService {
       return;
     }
 
-    let defaultWsUrl = 'ws://localhost:8081/ws';
+    const token = localStorage.getItem('token');
+    let defaultWsUrl = `ws://localhost:8081/ws${token ? '?token=' + token : ''}`;
     if (import.meta.env.VITE_API_URL) {
       try {
         const apiUrl = new URL(import.meta.env.VITE_API_URL);
         const protocol = apiUrl.protocol === 'https:' ? 'wss:' : 'ws:';
-        defaultWsUrl = `${protocol}//${apiUrl.host}/ws`;
+        defaultWsUrl = `${protocol}//${apiUrl.host}/ws${token ? '?token=' + token : ''}`;
       } catch (e) {
         console.error('Invalid VITE_API_URL for WebSocket', e);
       }
