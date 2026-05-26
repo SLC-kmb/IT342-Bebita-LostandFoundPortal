@@ -123,12 +123,12 @@ class DashboardActivity : AppCompatActivity() {
         progressBar.visibility = View.VISIBLE
         val apiService = RetrofitClient.getInstance(this).create(ApiService::class.java)
         
-        apiService.getItems().enqueue(object : Callback<List<ItemResponse>> {
+        apiService.getItems().enqueue(object : Callback<edu.cit.bebita.lostandfoundmobile.shared.network.ApiResponse<List<ItemResponse>>> {
             @SuppressLint("SetTextI18n")
-            override fun onResponse(call: Call<List<ItemResponse>>, response: Response<List<ItemResponse>>) {
+            override fun onResponse(call: Call<edu.cit.bebita.lostandfoundmobile.shared.network.ApiResponse<List<ItemResponse>>>, response: Response<edu.cit.bebita.lostandfoundmobile.shared.network.ApiResponse<List<ItemResponse>>>) {
                 progressBar.visibility = View.GONE
-                if (response.isSuccessful) {
-                    response.body()?.let {
+                if (response.isSuccessful && response.body()?.success == true) {
+                    response.body()?.data?.let {
                         itemsList.clear()
                         itemsList.addAll(it)
                         adapter.updateItems(itemsList)
@@ -139,7 +139,7 @@ class DashboardActivity : AppCompatActivity() {
                 }
             }
 
-            override fun onFailure(call: Call<List<ItemResponse>>, t: Throwable) {
+            override fun onFailure(call: Call<edu.cit.bebita.lostandfoundmobile.shared.network.ApiResponse<List<ItemResponse>>>, t: Throwable) {
                 progressBar.visibility = View.GONE
                 Toast.makeText(this@DashboardActivity, "Network error: ${t.message}", Toast.LENGTH_SHORT).show()
             }

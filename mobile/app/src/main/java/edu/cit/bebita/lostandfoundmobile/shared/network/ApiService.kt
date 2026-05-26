@@ -17,9 +17,9 @@ interface ApiService {
     fun login(@Body request: LoginRequest): Call<LoginResponse>
 
     @GET("items")
-    fun getItems(): Call<List<edu.cit.bebita.lostandfoundmobile.features.items.ItemResponse>>
+    fun getItems(): Call<ApiResponse<List<edu.cit.bebita.lostandfoundmobile.features.items.ItemResponse>>>
 
-    @POST("items/{id}/claim")
+    @PUT("items/claim/{id}")
     fun claimItem(@retrofit2.http.Path("id") id: Long): Call<ApiResponse<edu.cit.bebita.lostandfoundmobile.features.items.ItemResponse>>
 
     @POST("items/lost")
