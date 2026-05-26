@@ -87,8 +87,11 @@ export default function RegisterPage() {
   return (
     <div className="auth-page">
       <div className="auth-card">
-        <h2>Finder</h2>
-        <h3>Create your account</h3>
+        <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
+          <h2 style={{ marginBottom: '0.2rem' }}>Finder</h2>
+          <span style={{ fontSize: '0.85rem', color: '#64748b', fontWeight: '500' }}>Lost and Found Portal</span>
+        </div>
+        <h3>Create an account</h3>
 
         {error && <p className="error">{error}</p>}
         {success && <p className="success">Account created! Please check your email to verify your account before signing in.</p>}

@@ -86,7 +86,10 @@ export default function LoginPage() {
   return (
     <div className="auth-page">
       <div className="auth-card">
-        <h2>Finder</h2>
+        <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
+          <h2 style={{ marginBottom: '0.2rem' }}>Finder</h2>
+          <span style={{ fontSize: '0.85rem', color: '#64748b', fontWeight: '500' }}>Lost and Found Portal</span>
+        </div>
         <h3>Sign in to your account</h3>
 
         {error && <p className="error">{error}</p>}

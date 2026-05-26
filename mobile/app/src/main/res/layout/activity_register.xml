@@ -23,7 +23,16 @@
             android:textSize="36sp"
             android:textStyle="bold"
             android:fontFamily="sans-serif-black"
-            android:layout_marginTop="24dp"
+            android:layout_marginTop="32dp"
+            android:gravity="center" />
+            
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Lost and Found Portal"
+            android:textColor="#64748b"
+            android:textSize="14sp"
+            android:textStyle="bold"
             android:layout_marginBottom="8dp"
             android:gravity="center" />
 

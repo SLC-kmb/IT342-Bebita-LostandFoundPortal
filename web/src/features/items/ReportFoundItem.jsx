@@ -87,7 +87,10 @@ export default function ReportFoundItem() {
               <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>
             </svg>
           </span>
-          <span className="logo-text">Finder</span>
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            <span className="logo-text" style={{ lineHeight: '1.2' }}>Finder</span>
+            <span style={{ fontSize: '0.65rem', color: '#e2e8f0', letterSpacing: '0.5px' }}>Lost and Found Portal</span>
+          </div>
         </a>
       </nav>
 
