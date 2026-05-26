@@ -49,7 +49,7 @@
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:layout_gravity="center"
-                        android:src="@drawable/ic_search" 
+                        app:srcCompat="@drawable/ic_search" 
                         app:tint="@color/text_primary"/>
                     <!-- I am using search icon temporarily since bell icon doesn't exist, wait, I will draw a bell shape or use a system icon -->
 
@@ -142,7 +142,7 @@
                     <ImageView
                         android:layout_width="20dp"
                         android:layout_height="20dp"
-                        android:src="@drawable/ic_search"
+                        app:srcCompat="@drawable/ic_search"
                         app:tint="@color/text_muted" />
                         
                     <EditText
@@ -280,7 +280,7 @@
             android:text="I Found Something"
             android:textColor="@color/white"
             android:textStyle="bold"
-            app:icon="@drawable/badge_available"
+            app:icon="@drawable/ic_verified"
             app:iconTint="@color/white"
             android:backgroundTint="@color/primary_blue"
             android:layout_marginBottom="12dp"/>

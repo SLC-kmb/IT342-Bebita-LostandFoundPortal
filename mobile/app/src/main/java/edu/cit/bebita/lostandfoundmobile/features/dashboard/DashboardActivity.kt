@@ -123,25 +123,61 @@ class DashboardActivity : AppCompatActivity() {
         progressBar.visibility = View.VISIBLE
         val apiService = RetrofitClient.getInstance(this).create(ApiService::class.java)
         
-        apiService.getItems().enqueue(object : Callback<edu.cit.bebita.lostandfoundmobile.shared.network.ApiResponse<List<ItemResponse>>> {
-            @SuppressLint("SetTextI18n")
-            override fun onResponse(call: Call<edu.cit.bebita.lostandfoundmobile.shared.network.ApiResponse<List<ItemResponse>>>, response: Response<edu.cit.bebita.lostandfoundmobile.shared.network.ApiResponse<List<ItemResponse>>>) {
+        var lostItems: List<ItemResponse>? = null
+        var foundItems: List<ItemResponse>? = null
+        var lostDone = false
+        var foundDone = false
+        var hasError = false
+        
+        fun checkAndMerge() {
+            if (lostDone && foundDone) {
                 progressBar.visibility = View.GONE
-                if (response.isSuccessful && response.body()?.success == true) {
-                    response.body()?.data?.let {
-                        itemsList.clear()
-                        itemsList.addAll(it)
-                        adapter.updateItems(itemsList)
-                        itemCountTextView.text = "${itemsList.size} items currently in our network"
-                    }
-                } else {
-                    Toast.makeText(this@DashboardActivity, "Failed to load feed", Toast.LENGTH_SHORT).show()
+                if (hasError) {
+                    Toast.makeText(this@DashboardActivity, "Failed to load some items", Toast.LENGTH_SHORT).show()
                 }
+                itemsList.clear()
+                if (lostItems != null) itemsList.addAll(lostItems!!)
+                if (foundItems != null) itemsList.addAll(foundItems!!)
+                
+                // Sort by ID descending (newest first)
+                itemsList.sortByDescending { it.id }
+                
+                adapter.updateItems(itemsList)
+                itemCountTextView.text = "${itemsList.size} items currently in our network"
             }
-
+        }
+        
+        apiService.getLostItems().enqueue(object : Callback<edu.cit.bebita.lostandfoundmobile.shared.network.ApiResponse<List<ItemResponse>>> {
+            override fun onResponse(call: Call<edu.cit.bebita.lostandfoundmobile.shared.network.ApiResponse<List<ItemResponse>>>, response: Response<edu.cit.bebita.lostandfoundmobile.shared.network.ApiResponse<List<ItemResponse>>>) {
+                lostDone = true
+                if (response.isSuccessful && response.body()?.success == true) {
+                    lostItems = response.body()?.data
+                } else {
+                    hasError = true
+                }
+                checkAndMerge()
+            }
             override fun onFailure(call: Call<edu.cit.bebita.lostandfoundmobile.shared.network.ApiResponse<List<ItemResponse>>>, t: Throwable) {
-                progressBar.visibility = View.GONE
-                Toast.makeText(this@DashboardActivity, "Network error: ${t.message}", Toast.LENGTH_SHORT).show()
+                lostDone = true
+                hasError = true
+                checkAndMerge()
+            }
+        })
+        
+        apiService.getFoundItems().enqueue(object : Callback<edu.cit.bebita.lostandfoundmobile.shared.network.ApiResponse<List<ItemResponse>>> {
+            override fun onResponse(call: Call<edu.cit.bebita.lostandfoundmobile.shared.network.ApiResponse<List<ItemResponse>>>, response: Response<edu.cit.bebita.lostandfoundmobile.shared.network.ApiResponse<List<ItemResponse>>>) {
+                foundDone = true
+                if (response.isSuccessful && response.body()?.success == true) {
+                    foundItems = response.body()?.data
+                } else {
+                    hasError = true
+                }
+                checkAndMerge()
+            }
+            override fun onFailure(call: Call<edu.cit.bebita.lostandfoundmobile.shared.network.ApiResponse<List<ItemResponse>>>, t: Throwable) {
+                foundDone = true
+                hasError = true
+                checkAndMerge()
             }
         })
     }

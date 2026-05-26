@@ -21,13 +21,17 @@ object RetrofitClient {
         if (retrofit == null) {
             val sessionManager = SessionManager(context)
             
-            val client = OkHttpClient.Builder().addInterceptor { chain ->
-                val requestBuilder = chain.request().newBuilder()
-                sessionManager.fetchAuthToken()?.let { token ->
-                    requestBuilder.addHeader("Authorization", "Bearer $token")
-                }
-                chain.proceed(requestBuilder.build())
-            }.build()
+            val client = OkHttpClient.Builder()
+                .connectTimeout(60, java.util.concurrent.TimeUnit.SECONDS)
+                .readTimeout(60, java.util.concurrent.TimeUnit.SECONDS)
+                .writeTimeout(60, java.util.concurrent.TimeUnit.SECONDS)
+                .addInterceptor { chain ->
+                    val requestBuilder = chain.request().newBuilder()
+                    sessionManager.fetchAuthToken()?.let { token ->
+                        requestBuilder.addHeader("Authorization", "Bearer $token")
+                    }
+                    chain.proceed(requestBuilder.build())
+                }.build()
 
             retrofit = Retrofit.Builder()
                 .baseUrl(BASE_URL)
