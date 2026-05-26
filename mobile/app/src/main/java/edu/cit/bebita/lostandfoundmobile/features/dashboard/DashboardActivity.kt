@@ -154,12 +154,14 @@ class DashboardActivity : AppCompatActivity() {
                     lostItems = response.body()?.data
                 } else {
                     hasError = true
+                    android.util.Log.e("DashboardActivity", "Failed to load lost items: ${response.code()} ${response.errorBody()?.string()}")
                 }
                 checkAndMerge()
             }
             override fun onFailure(call: Call<edu.cit.bebita.lostandfoundmobile.shared.network.ApiResponse<List<ItemResponse>>>, t: Throwable) {
                 lostDone = true
                 hasError = true
+                android.util.Log.e("DashboardActivity", "Error loading lost items", t)
                 checkAndMerge()
             }
         })
@@ -171,12 +173,14 @@ class DashboardActivity : AppCompatActivity() {
                     foundItems = response.body()?.data
                 } else {
                     hasError = true
+                    android.util.Log.e("DashboardActivity", "Failed to load found items: ${response.code()} ${response.errorBody()?.string()}")
                 }
                 checkAndMerge()
             }
             override fun onFailure(call: Call<edu.cit.bebita.lostandfoundmobile.shared.network.ApiResponse<List<ItemResponse>>>, t: Throwable) {
                 foundDone = true
                 hasError = true
+                android.util.Log.e("DashboardActivity", "Error loading found items", t)
                 checkAndMerge()
             }
         })
