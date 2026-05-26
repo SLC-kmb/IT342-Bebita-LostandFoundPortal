@@ -58,6 +58,21 @@ public class ItemController {
         return ResponseEntity.ok(ApiResponse.success(items));
     }
 
+    @GetMapping("")
+    public ResponseEntity<ApiResponse<List<ItemResponse>>> getAllItems() {
+        List<ItemResponse> lostItems = itemService.getLostItems();
+        List<ItemResponse> foundItems = itemService.getFoundItems();
+        
+        java.util.List<ItemResponse> allItems = new java.util.ArrayList<>();
+        allItems.addAll(lostItems);
+        allItems.addAll(foundItems);
+        
+        // Sort by id descending (newest first)
+        allItems.sort((a, b) -> b.getId().compareTo(a.getId()));
+        
+        return ResponseEntity.ok(ApiResponse.success(allItems));
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<ItemResponse>> getItemById(@PathVariable Long id) {
         ItemResponse item = itemService.getItemById(id);
