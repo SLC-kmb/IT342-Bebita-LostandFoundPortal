@@ -72,7 +72,7 @@ class LoginActivity : AppCompatActivity() {
 
         val loginRequest = LoginRequest(email, password)
 
-        val apiService = RetrofitClient.instance.create(ApiService::class.java)
+        val apiService = RetrofitClient.getInstance(this).create(ApiService::class.java)
         apiService.login(loginRequest).enqueue(object : Callback<LoginResponse> {
             override fun onResponse(call: Call<LoginResponse>, response: Response<LoginResponse>) {
                 progressBar.visibility = View.GONE
@@ -80,10 +80,13 @@ class LoginActivity : AppCompatActivity() {
                     val loginResponse = response.body()
                     if (loginResponse?.success == true) {
                         Toast.makeText(this@LoginActivity, "Login successful", Toast.LENGTH_SHORT).show()
-                        // Store tokens if needed
-                        // val accessToken = loginResponse.data?.accessToken
-                        // val role = loginResponse.data?.user?.role
-                        // Redirect to next screen, e.g., MainActivity or Dashboard
+                        // Store the token and email
+                        val sessionManager = edu.cit.bebita.lostandfoundmobile.shared.network.SessionManager(this@LoginActivity)
+                        loginResponse.data?.accessToken?.let { token ->
+                            sessionManager.saveAuthToken(token)
+                        }
+                        sessionManager.saveUserEmail(email)
+                        
                         startActivity(Intent(this@LoginActivity, DashboardActivity::class.java))
                         finish()
                     } else {

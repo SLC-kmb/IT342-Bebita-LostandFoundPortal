@@ -6,6 +6,7 @@ import edu.cit.bebita.lostandfoundmobile.features.auth.RegisterRequest
 import edu.cit.bebita.lostandfoundmobile.features.auth.RegisterResponse
 import retrofit2.Call
 import retrofit2.http.Body
+import retrofit2.http.GET
 import retrofit2.http.POST
 
 interface ApiService {
@@ -14,4 +15,28 @@ interface ApiService {
 
     @POST("auth/login")
     fun login(@Body request: LoginRequest): Call<LoginResponse>
+
+    @GET("items")
+    fun getItems(): Call<List<edu.cit.bebita.lostandfoundmobile.features.items.ItemResponse>>
+
+    @POST("items/{id}/claim")
+    fun claimItem(@retrofit2.http.Path("id") id: Long): Call<ApiResponse<edu.cit.bebita.lostandfoundmobile.features.items.ItemResponse>>
+
+    @POST("items/lost")
+    fun reportLostItem(@Body request: edu.cit.bebita.lostandfoundmobile.features.items.ReportLostItemRequest): Call<ApiResponse<edu.cit.bebita.lostandfoundmobile.features.items.ItemResponse>>
+
+    @POST("items/found")
+    fun reportFoundItem(@Body request: edu.cit.bebita.lostandfoundmobile.features.items.ReportFoundItemRequest): Call<ApiResponse<edu.cit.bebita.lostandfoundmobile.features.items.ItemResponse>>
+
+    @GET("notifications")
+    fun getNotifications(): Call<ApiResponse<List<edu.cit.bebita.lostandfoundmobile.features.notifications.NotificationResponse>>>
+
+    @POST("notifications/{id}/read")
+    fun markNotificationAsRead(@retrofit2.http.Path("id") id: Long): Call<ApiResponse<Void>>
+
+    @retrofit2.http.DELETE("notifications/{id}")
+    fun clearNotification(@retrofit2.http.Path("id") id: Long): Call<ApiResponse<Void>>
+
+    @retrofit2.http.DELETE("notifications")
+    fun clearAllNotifications(): Call<ApiResponse<Void>>
 }

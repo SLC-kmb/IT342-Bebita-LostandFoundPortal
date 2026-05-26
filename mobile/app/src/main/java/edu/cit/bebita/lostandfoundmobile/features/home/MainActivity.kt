@@ -3,30 +3,23 @@ package edu.cit.bebita.lostandfoundmobile.features.home
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import edu.cit.bebita.lostandfoundmobile.R
 import edu.cit.bebita.lostandfoundmobile.features.auth.LoginActivity
-import edu.cit.bebita.lostandfoundmobile.features.auth.RegisterActivity
+import edu.cit.bebita.lostandfoundmobile.features.dashboard.DashboardActivity
+import edu.cit.bebita.lostandfoundmobile.shared.network.SessionManager
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
-
-        val loginButton = findViewById<android.widget.Button>(R.id.loginButton)
-        loginButton.setOnClickListener {
+        
+        val sessionManager = SessionManager(this)
+        
+        // Route to Dashboard if logged in, otherwise route to Login
+        if (sessionManager.fetchAuthToken() != null) {
+            startActivity(Intent(this, DashboardActivity::class.java))
+        } else {
             startActivity(Intent(this, LoginActivity::class.java))
         }
-
-        val registerButton = findViewById<android.widget.Button>(R.id.registerButton)
-        registerButton.setOnClickListener {
-            startActivity(Intent(this, RegisterActivity::class.java))
-        }
+        
+        finish() // End MainActivity so the user can't navigate back to it
     }
 }

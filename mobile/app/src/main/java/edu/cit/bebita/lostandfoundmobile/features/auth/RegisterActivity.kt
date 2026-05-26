@@ -94,7 +94,7 @@ class RegisterActivity : AppCompatActivity() {
 
         val registerRequest = RegisterRequest(email, password, firstName, lastName)
 
-        val apiService = RetrofitClient.instance.create(ApiService::class.java)
+        val apiService = RetrofitClient.getInstance(this).create(ApiService::class.java)
         apiService.register(registerRequest).enqueue(object : Callback<RegisterResponse> {
             override fun onResponse(call: Call<RegisterResponse>, response: Response<RegisterResponse>) {
                 progressBar.visibility = View.GONE
@@ -102,8 +102,10 @@ class RegisterActivity : AppCompatActivity() {
                     val registerResponse = response.body()
                     if (registerResponse?.success == true) {
                         Toast.makeText(this@RegisterActivity, "Registration successful", Toast.LENGTH_SHORT).show()
-                        // Store tokens if needed
-                        // val accessToken = registerResponse.data?.accessToken
+                        // Store the token
+                        registerResponse.data?.accessToken?.let { token ->
+                            edu.cit.bebita.lostandfoundmobile.shared.network.SessionManager(this@RegisterActivity).saveAuthToken(token)
+                        }
                         startActivity(Intent(this@RegisterActivity, LoginActivity::class.java))
                         finish()
                     } else {
