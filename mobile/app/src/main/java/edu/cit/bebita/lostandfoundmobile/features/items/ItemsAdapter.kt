@@ -35,9 +35,9 @@ class ItemsAdapter(private var items: List<ItemResponse>) : RecyclerView.Adapter
     override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
         val item = items[position]
         
-        holder.itemNameText.text = item.itemName
-        holder.itemCategoryText.text = item.category.uppercase()
-        holder.itemLocationText.text = item.location
+        holder.itemNameText.text = item.itemName ?: "Unknown Item"
+        holder.itemCategoryText.text = item.category?.uppercase() ?: "OTHER"
+        holder.itemLocationText.text = item.location ?: "Unknown location"
         
         // Load image using Glide
         if (!item.imageUrl.isNullOrEmpty()) {
@@ -50,14 +50,16 @@ class ItemsAdapter(private var items: List<ItemResponse>) : RecyclerView.Adapter
         }
         
         // Show date depending on type
-        val dateString = if (item.type.lowercase() == "lost") {
+        val itemType = item.type ?: "unknown"
+        val dateString = if (itemType.lowercase() == "lost") {
             "Lost: ${item.dateLost ?: "Unknown"}"
         } else {
             "Found: ${item.dateFound ?: "Unknown"}"
         }
         holder.itemDateText.text = dateString
         
-        holder.statusText.text = if (item.status.lowercase() == "active") "Available" else "Review Pending"
+        val itemStatus = item.status ?: "active"
+        holder.statusText.text = if (itemStatus.lowercase() == "active") "Available" else "Review Pending"
         
         // Placeholder for claim action
         holder.claimButton.setOnClickListener {

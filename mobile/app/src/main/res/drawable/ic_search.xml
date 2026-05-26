@@ -7,5 +7,5 @@
         android:fillColor="#00000000"
         android:strokeColor="#64748B"
         android:strokeWidth="2"
-        android:pathData="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        android:pathData="M21 21l-6-6m2-5a7 7 0 1 1 -14 0 7 7 0 0 1 14 0z" />
 </vector>

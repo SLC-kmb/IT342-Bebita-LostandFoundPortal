@@ -8,6 +8,7 @@ import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.PUT
 
 interface ApiService {
     @POST("auth/register")
@@ -16,8 +17,11 @@ interface ApiService {
     @POST("auth/login")
     fun login(@Body request: LoginRequest): Call<LoginResponse>
 
-    @GET("items")
-    fun getItems(): Call<ApiResponse<List<edu.cit.bebita.lostandfoundmobile.features.items.ItemResponse>>>
+    @GET("items/lost")
+    fun getLostItems(): Call<ApiResponse<List<edu.cit.bebita.lostandfoundmobile.features.items.ItemResponse>>>
+
+    @GET("items/found")
+    fun getFoundItems(): Call<ApiResponse<List<edu.cit.bebita.lostandfoundmobile.features.items.ItemResponse>>>
 
     @PUT("items/claim/{id}")
     fun claimItem(@retrofit2.http.Path("id") id: Long): Call<ApiResponse<edu.cit.bebita.lostandfoundmobile.features.items.ItemResponse>>
