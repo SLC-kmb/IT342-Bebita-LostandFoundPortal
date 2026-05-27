@@ -8,4 +8,6 @@ import edu.cit.bebita.lostandfoundportal.features.auth.model.User;
 
 public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByEmail(String email);
+    Optional<User> findByEmailVerificationToken(String token);
+    Optional<User> findByResetPasswordToken(String token);
 }
