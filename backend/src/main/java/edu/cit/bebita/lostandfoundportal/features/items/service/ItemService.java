@@ -124,8 +124,6 @@ public class ItemService {
             String finderName = user.getFirstName() + " " + user.getLastName();
             String finderEmail = user.getEmail();
             
-            emailService.sendItemFoundEmail(originalOwnerEmail, finderName, finderEmail, item.getItemName(), originalOwnerName);
-
             // In-App Notification to the Finder
             String finderTitle = "Action Required: Return Found Item";
             String finderMessage = "If you found the item (" + item.getItemName() + "), please return it to the Admin Office so the owner can claim it.";

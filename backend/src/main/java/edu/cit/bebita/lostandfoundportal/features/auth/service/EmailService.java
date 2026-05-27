@@ -94,35 +94,5 @@ public class EmailService {
         }
     }
 
-    @Async
-    public void sendItemFoundEmail(String to, String finderName, String finderEmail, String itemName, String originalOwnerName) {
-        try {
-            MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-
-            helper.setFrom(fromEmail);
-            helper.setTo(to);
-            helper.setSubject("Great News! Your Lost Item Was Found");
-
-            String htmlContent = "<div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>"
-                + "<h2 style='color: #10b981;'>Great News, " + originalOwnerName + "!</h2>"
-                + "<p>The item you reported as lost (<strong>" + itemName + "</strong>) has been found by another user.</p>"
-                + "<div style='background-color: #f3f4f6; padding: 15px; border-radius: 5px; margin: 20px 0;'>"
-                + "  <h3 style='margin-top: 0; color: #374151;'>Finder Details:</h3>"
-                + "  <p style='margin: 5px 0;'><strong>Name:</strong> " + finderName + "</p>"
-                + "  <p style='margin: 5px 0;'><strong>Email:</strong> " + finderEmail + "</p>"
-                + "</div>"
-                + "<p><strong>What to do next:</strong></p>"
-                + "<p>Please proceed to the <strong>Admin Office</strong> to verify and claim your item.</p>"
-                + "<p style='margin-top: 20px; font-size: 0.9em; color: #666;'>Thank you for using the Campus Lost & Found Portal!</p>"
-                + "</div>";
-
-            helper.setText(htmlContent, true);
-            mailSender.send(message);
-
-        } catch (Exception e) {
-            System.err.println("Failed to send item found email: " + e.getMessage());
-            // Do not throw an exception here, we don't want to roll back the claim transaction if email fails.
-        }
     }
 }
