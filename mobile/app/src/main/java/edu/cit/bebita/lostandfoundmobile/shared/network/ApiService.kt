@@ -23,6 +23,9 @@ interface ApiService {
     @GET("items/found")
     fun getFoundItems(): Call<ApiResponse<List<edu.cit.bebita.lostandfoundmobile.features.items.ItemResponse>>>
 
+    @GET("items")
+    fun getAllItems(): Call<ApiResponse<List<edu.cit.bebita.lostandfoundmobile.features.items.ItemResponse>>>
+
     @PUT("items/claim/{id}")
     fun claimItem(@retrofit2.http.Path("id") id: Long): Call<ApiResponse<edu.cit.bebita.lostandfoundmobile.features.items.ItemResponse>>
 

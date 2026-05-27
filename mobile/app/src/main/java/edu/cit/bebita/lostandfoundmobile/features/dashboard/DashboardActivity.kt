@@ -123,65 +123,29 @@ class DashboardActivity : AppCompatActivity() {
         progressBar.visibility = View.VISIBLE
         val apiService = RetrofitClient.getInstance(this).create(ApiService::class.java)
         
-        var lostItems: List<ItemResponse>? = null
-        var foundItems: List<ItemResponse>? = null
-        var lostDone = false
-        var foundDone = false
-        var hasError = false
-        
-        fun checkAndMerge() {
-            if (lostDone && foundDone) {
+        apiService.getAllItems().enqueue(object : Callback<edu.cit.bebita.lostandfoundmobile.shared.network.ApiResponse<List<ItemResponse>>> {
+            override fun onResponse(call: Call<edu.cit.bebita.lostandfoundmobile.shared.network.ApiResponse<List<ItemResponse>>>, response: Response<edu.cit.bebita.lostandfoundmobile.shared.network.ApiResponse<List<ItemResponse>>>) {
                 progressBar.visibility = View.GONE
-                if (hasError) {
+                if (response.isSuccessful && response.body()?.success == true) {
+                    val allItems = response.body()?.data ?: emptyList()
+                    itemsList.clear()
+                    itemsList.addAll(allItems)
+                    
+                    // Sort by ID descending (newest first)
+                    itemsList.sortByDescending { it.id }
+                    
+                    adapter.updateItems(itemsList)
+                    itemCountTextView.text = "${itemsList.size} items currently in our network"
+                } else {
+                    android.util.Log.e("DashboardActivity", "Failed to load all items: ${response.code()} ${response.errorBody()?.string()}")
                     Toast.makeText(this@DashboardActivity, "Failed to load some items", Toast.LENGTH_SHORT).show()
                 }
-                itemsList.clear()
-                if (lostItems != null) itemsList.addAll(lostItems!!)
-                if (foundItems != null) itemsList.addAll(foundItems!!)
-                
-                // Sort by ID descending (newest first)
-                itemsList.sortByDescending { it.id }
-                
-                adapter.updateItems(itemsList)
-                itemCountTextView.text = "${itemsList.size} items currently in our network"
             }
-        }
-        
-        apiService.getLostItems().enqueue(object : Callback<edu.cit.bebita.lostandfoundmobile.shared.network.ApiResponse<List<ItemResponse>>> {
-            override fun onResponse(call: Call<edu.cit.bebita.lostandfoundmobile.shared.network.ApiResponse<List<ItemResponse>>>, response: Response<edu.cit.bebita.lostandfoundmobile.shared.network.ApiResponse<List<ItemResponse>>>) {
-                lostDone = true
-                if (response.isSuccessful && response.body()?.success == true) {
-                    lostItems = response.body()?.data
-                } else {
-                    hasError = true
-                    android.util.Log.e("DashboardActivity", "Failed to load lost items: ${response.code()} ${response.errorBody()?.string()}")
-                }
-                checkAndMerge()
-            }
+
             override fun onFailure(call: Call<edu.cit.bebita.lostandfoundmobile.shared.network.ApiResponse<List<ItemResponse>>>, t: Throwable) {
-                lostDone = true
-                hasError = true
-                android.util.Log.e("DashboardActivity", "Error loading lost items", t)
-                checkAndMerge()
-            }
-        })
-        
-        apiService.getFoundItems().enqueue(object : Callback<edu.cit.bebita.lostandfoundmobile.shared.network.ApiResponse<List<ItemResponse>>> {
-            override fun onResponse(call: Call<edu.cit.bebita.lostandfoundmobile.shared.network.ApiResponse<List<ItemResponse>>>, response: Response<edu.cit.bebita.lostandfoundmobile.shared.network.ApiResponse<List<ItemResponse>>>) {
-                foundDone = true
-                if (response.isSuccessful && response.body()?.success == true) {
-                    foundItems = response.body()?.data
-                } else {
-                    hasError = true
-                    android.util.Log.e("DashboardActivity", "Failed to load found items: ${response.code()} ${response.errorBody()?.string()}")
-                }
-                checkAndMerge()
-            }
-            override fun onFailure(call: Call<edu.cit.bebita.lostandfoundmobile.shared.network.ApiResponse<List<ItemResponse>>>, t: Throwable) {
-                foundDone = true
-                hasError = true
-                android.util.Log.e("DashboardActivity", "Error loading found items", t)
-                checkAndMerge()
+                progressBar.visibility = View.GONE
+                android.util.Log.e("DashboardActivity", "Error loading all items", t)
+                Toast.makeText(this@DashboardActivity, "Network Error: Failed to load items", Toast.LENGTH_SHORT).show()
             }
         })
     }
