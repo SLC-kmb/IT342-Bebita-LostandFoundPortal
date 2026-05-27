@@ -21,7 +21,6 @@ public class EmailService {
         this.mailSender = mailSender;
     }
 
-    @Async
     public void sendVerificationEmail(String to, String token, String firstName, String lastName, String studentId) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
@@ -62,7 +61,6 @@ public class EmailService {
         }
     }
 
-    @Async
     public void sendPasswordResetEmail(String to, String token, String firstName) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
