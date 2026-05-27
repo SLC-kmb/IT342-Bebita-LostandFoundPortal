@@ -66,6 +66,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Void>> handleGeneral(Exception ex) {
+        ex.printStackTrace(); // PRINT THE ACTUAL ERROR TO THE LOGS!
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ApiResponse.error(new ApiError("SYSTEM-001", "Internal server error", ex.getMessage())));
