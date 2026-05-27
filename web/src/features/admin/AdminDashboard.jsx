@@ -451,7 +451,7 @@ export default function AdminDashboard() {
           <div className="sidebar-header-text">
           <div style={{ display: 'flex', flexDirection: 'column' }}>
             <p style={{ margin: 0, lineHeight: '1.2' }}>Finder</p>
-            <span style={{ fontSize: '0.65rem', color: '#e2e8f0', letterSpacing: '0.5px', fontWeight: 'normal' }}>Lost and Found Portal</span>
+            <span style={{ fontSize: '0.65rem', color: '#64748b', letterSpacing: '0.5px', fontWeight: 'normal' }}>Lost and Found Portal</span>
           </div>
             <p>Admin console</p>
           </div>

@@ -270,6 +270,10 @@ public class AdminService {
             itemRepository.save(item);
         }
         
+        // Delete all notifications for the user
+        List<edu.cit.bebita.lostandfoundportal.features.notifications.model.Notification> notifications = notificationRepository.findByUserOrderByCreatedAtDesc(user);
+        notificationRepository.deleteAll(notifications);
+        
         userRepository.delete(user);
     }
 
