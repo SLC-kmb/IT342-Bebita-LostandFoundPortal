@@ -3,6 +3,7 @@ package edu.cit.bebita.lostandfoundportal.features.auth.service;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import jakarta.mail.MessagingException;
@@ -20,6 +21,7 @@ public class EmailService {
         this.mailSender = mailSender;
     }
 
+    @Async
     public void sendVerificationEmail(String to, String token, String firstName, String lastName, String studentId) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
@@ -59,6 +61,7 @@ public class EmailService {
         }
     }
 
+    @Async
     public void sendPasswordResetEmail(String to, String token, String firstName) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
@@ -91,6 +94,7 @@ public class EmailService {
         }
     }
 
+    @Async
     public void sendItemFoundEmail(String to, String finderName, String finderEmail, String itemName, String originalOwnerName) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
