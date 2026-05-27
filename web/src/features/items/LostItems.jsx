@@ -89,7 +89,7 @@ export default function LostItems() {
           </span>
           <div style={{ display: 'flex', flexDirection: 'column' }}>
             <span className="logo-text" style={{ lineHeight: '1.2' }}>Finder</span>
-            <span style={{ fontSize: '0.65rem', color: '#e2e8f0', letterSpacing: '0.5px' }}>Lost and Found Portal</span>
+            <span style={{ fontSize: '0.65rem', color: '#64748b', letterSpacing: '0.5px' }}>Lost and Found Portal</span>
           </div>
         </a>
       </nav>
@@ -112,7 +112,7 @@ export default function LostItems() {
           </span>
           <div style={{ display: 'flex', flexDirection: 'column' }}>
             <span className="logo-text" style={{ lineHeight: '1.2' }}>Finder</span>
-            <span style={{ fontSize: '0.65rem', color: '#e2e8f0', letterSpacing: '0.5px' }}>Lost and Found Portal</span>
+            <span style={{ fontSize: '0.65rem', color: '#64748b', letterSpacing: '0.5px' }}>Lost and Found Portal</span>
           </div>
         </a>
       </nav>

@@ -1,5 +1,7 @@
 package edu.cit.bebita.lostandfoundmobile.features.auth
 
+import com.google.gson.annotations.SerializedName
+
 data class LoginResponse(
     val success: Boolean,
     val data: LoginData?,
@@ -9,8 +11,9 @@ data class LoginResponse(
 
 data class LoginData(
     val user: UserWithRole,
-    val accessToken: String,
-    val refreshToken: String
+    @SerializedName("token")
+    val accessToken: String?,
+    val refreshToken: String?
 )
 
 data class UserWithRole(
