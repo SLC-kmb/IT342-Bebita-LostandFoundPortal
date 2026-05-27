@@ -129,9 +129,7 @@ public class UserService {
     }
 
     public void verifyEmail(String token) {
-        User user = userRepository.findAll().stream()
-                .filter(u -> token.equals(u.getEmailVerificationToken()))
-                .findFirst()
+        User user = userRepository.findByEmailVerificationToken(token)
                 .orElseThrow(() -> new InvalidCredentialsException("Invalid or expired verification token"));
                 
         user.setEmailVerified(true);
@@ -165,9 +163,7 @@ public class UserService {
     }
 
     public void resetPassword(String token, String newPassword) {
-        User user = userRepository.findAll().stream()
-                .filter(u -> token.equals(u.getResetPasswordToken()))
-                .findFirst()
+        User user = userRepository.findByResetPasswordToken(token)
                 .orElseThrow(() -> new InvalidCredentialsException("Invalid reset token"));
 
         if (user.getResetPasswordTokenExpiry().isBefore(LocalDateTime.now())) {
